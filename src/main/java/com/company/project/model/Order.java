@@ -4,25 +4,21 @@ import java.util.Date;
 import javax.persistence.*;
 
 public class Order {
+    @Id
     @Column(name = "UUID")
     private String uuid;
 
-    @Column(name = "itemIDs")
-    private String itemids;
+    private String items;
 
-    @Column(name = "sellerID")
-    private String sellerid;
+    private String seller;
 
-    @Column(name = "buyerID")
-    private String buyerid;
+    private String buyer;
 
     private Float price;
 
-    @Column(name = "billID")
-    private String billid;
+    private String bill;
 
-    @Column(name = "deliveryID")
-    private String deliveryid;
+    private String delivery;
 
     private Date time;
 
@@ -30,8 +26,7 @@ public class Order {
 
     private Boolean finish;
 
-    @Column(name = "commentID")
-    private String commentid;
+    private String comment;
 
     /**
      * @return UUID
@@ -48,45 +43,45 @@ public class Order {
     }
 
     /**
-     * @return itemIDs
+     * @return items
      */
-    public String getItemids() {
-        return itemids;
+    public String getItems() {
+        return items;
     }
 
     /**
-     * @param itemids
+     * @param items
      */
-    public void setItemids(String itemids) {
-        this.itemids = itemids;
+    public void setItems(String items) {
+        this.items = items;
     }
 
     /**
-     * @return sellerID
+     * @return seller
      */
-    public String getSellerid() {
-        return sellerid;
+    public String getSeller() {
+        return seller;
     }
 
     /**
-     * @param sellerid
+     * @param seller
      */
-    public void setSellerid(String sellerid) {
-        this.sellerid = sellerid;
+    public void setSeller(String seller) {
+        this.seller = seller;
     }
 
     /**
-     * @return buyerID
+     * @return buyer
      */
-    public String getBuyerid() {
-        return buyerid;
+    public String getBuyer() {
+        return buyer;
     }
 
     /**
-     * @param buyerid
+     * @param buyer
      */
-    public void setBuyerid(String buyerid) {
-        this.buyerid = buyerid;
+    public void setBuyer(String buyer) {
+        this.buyer = buyer;
     }
 
     /**
@@ -104,31 +99,31 @@ public class Order {
     }
 
     /**
-     * @return billID
+     * @return bill
      */
-    public String getBillid() {
-        return billid;
+    public String getBill() {
+        return bill;
     }
 
     /**
-     * @param billid
+     * @param bill
      */
-    public void setBillid(String billid) {
-        this.billid = billid;
+    public void setBill(String bill) {
+        this.bill = bill;
     }
 
     /**
-     * @return deliveryID
+     * @return delivery
      */
-    public String getDeliveryid() {
-        return deliveryid;
+    public String getDelivery() {
+        return delivery;
     }
 
     /**
-     * @param deliveryid
+     * @param delivery
      */
-    public void setDeliveryid(String deliveryid) {
-        this.deliveryid = deliveryid;
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
     }
 
     /**
@@ -174,16 +169,16 @@ public class Order {
     }
 
     /**
-     * @return commentID
+     * @return comment
      */
-    public String getCommentid() {
-        return commentid;
+    public String getComment() {
+        return comment;
     }
 
     /**
-     * @param commentid
+     * @param comment
      */
-    public void setCommentid(String commentid) {
-        this.commentid = commentid;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

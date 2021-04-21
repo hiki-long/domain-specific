@@ -5,7 +5,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <result column="UUID" jdbcType="VARCHAR" property="uuid" />
+    <id column="UUID" jdbcType="VARCHAR" property="uuid" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="owner" jdbcType="VARCHAR" property="owner" />
     <result column="remain" jdbcType="INTEGER" property="remain" />

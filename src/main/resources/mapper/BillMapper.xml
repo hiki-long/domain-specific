@@ -5,10 +5,10 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <result column="UUID" jdbcType="VARCHAR" property="uuid" />
-    <result column="orderID" jdbcType="VARCHAR" property="orderid" />
+    <id column="uuid" jdbcType="VARCHAR" property="uuid" />
+    <result column="order" jdbcType="VARCHAR" property="order" />
     <result column="price" jdbcType="REAL" property="price" />
     <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="paymentID" jdbcType="VARCHAR" property="paymentid" />
+    <result column="payment" jdbcType="VARCHAR" property="payment" />
   </resultMap>
 </mapper>

@@ -3,6 +3,7 @@ package com.company.project.model;
 import javax.persistence.*;
 
 public class Item {
+    @Id
     @Column(name = "UUID")
     private String uuid;
 

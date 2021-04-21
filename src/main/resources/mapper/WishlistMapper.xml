@@ -5,7 +5,7 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <result column="ownerID" jdbcType="VARCHAR" property="ownerid" />
-    <result column="itemIDs" jdbcType="VARCHAR" property="itemids" />
+    <id column="owner" jdbcType="VARCHAR" property="owner" />
+    <result column="items" jdbcType="VARCHAR" property="items" />
   </resultMap>
 </mapper>
