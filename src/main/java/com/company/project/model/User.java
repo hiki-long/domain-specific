@@ -1,37 +1,46 @@
 package com.company.project.model;
 
-import java.util.Date;
 import javax.persistence.*;
 
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private String uuid;
+
+    private String email;
 
     private String username;
 
-    private String password;
+    private String role;
 
-    @Column(name = "nick_name")
-    private String nickName;
+    private String avatar;
 
-    private Integer sex;
-
-    @Column(name = "register_date")
-    private Date registerDate;
+    private Float rank;
 
     /**
-     * @return id
+     * @return uuid
      */
-    public Integer getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
     /**
-     * @param id
+     * @param uuid
      */
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    /**
+     * @return email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**
@@ -49,58 +58,44 @@ public class User {
     }
 
     /**
-     * @return password
+     * @return role
      */
-    public String getPassword() {
-        return password;
+    public String getRole() {
+        return role;
     }
 
     /**
-     * @param password
+     * @param role
      */
-    public void setPassword(String password) {
-        this.password = password;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     /**
-     * @return nick_name
+     * @return avatar
      */
-    public String getNickName() {
-        return nickName;
+    public String getAvatar() {
+        return avatar;
     }
 
     /**
-     * @param nickName
+     * @param avatar
      */
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     /**
-     * @return sex
+     * @return rank
      */
-    public Integer getSex() {
-        return sex;
+    public Float getRank() {
+        return rank;
     }
 
     /**
-     * @param sex
+     * @param rank
      */
-    public void setSex(Integer sex) {
-        this.sex = sex;
-    }
-
-    /**
-     * @return register_date
-     */
-    public Date getRegisterDate() {
-        return registerDate;
-    }
-
-    /**
-     * @param registerDate
-     */
-    public void setRegisterDate(Date registerDate) {
-        this.registerDate = registerDate;
+    public void setRank(Float rank) {
+        this.rank = rank;
     }
 }

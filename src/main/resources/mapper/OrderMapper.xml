@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.project.dao.OrderMapper">
+  <resultMap id="BaseResultMap" type="com.company.project.model.Order">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="UUID" jdbcType="VARCHAR" property="uuid" />
+    <result column="itemIDs" jdbcType="VARCHAR" property="itemids" />
+    <result column="sellerID" jdbcType="VARCHAR" property="sellerid" />
+    <result column="buyerID" jdbcType="VARCHAR" property="buyerid" />
+    <result column="price" jdbcType="REAL" property="price" />
+    <result column="billID" jdbcType="VARCHAR" property="billid" />
+    <result column="deliveryID" jdbcType="VARCHAR" property="deliveryid" />
+    <result column="time" jdbcType="TIME" property="time" />
+    <result column="paid" jdbcType="BIT" property="paid" />
+    <result column="finish" jdbcType="BIT" property="finish" />
+    <result column="commentID" jdbcType="VARCHAR" property="commentid" />
+  </resultMap>
+</mapper>

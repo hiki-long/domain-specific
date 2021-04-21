@@ -1,8 +1,8 @@
 package com.company.project.web;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
-import com.company.project.model.User;
-import com.company.project.service.UserService;
+import com.company.project.model.Bill;
+import com.company.project.service.BillService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,39 +17,39 @@ import java.util.List;
 * Created by CodeGenerator on 2021/04/21.
 */
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/bill")
+public class BillController {
     @Resource
-    private UserService userService;
+    private BillService billService;
 
     @PostMapping("/add")
-    public Result add(User user) {
-        userService.save(user);
+    public Result add(Bill bill) {
+        billService.save(bill);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/delete")
     public Result delete(@RequestParam Integer id) {
-        userService.deleteById(id);
+        billService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/update")
-    public Result update(User user) {
-        userService.update(user);
+    public Result update(Bill bill) {
+        billService.update(bill);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/detail")
     public Result detail(@RequestParam Integer id) {
-        User user = userService.findById(id);
-        return ResultGenerator.genSuccessResult(user);
+        Bill bill = billService.findById(id);
+        return ResultGenerator.genSuccessResult(bill);
     }
 
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        List<User> list = userService.findAll();
+        List<Bill> list = billService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }

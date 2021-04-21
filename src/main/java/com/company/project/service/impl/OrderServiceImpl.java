@@ -1,8 +1,8 @@
 package com.company.project.service.impl;
 
-import com.company.project.dao.UserMapper;
-import com.company.project.model.User;
-import com.company.project.service.UserService;
+import com.company.project.dao.OrderMapper;
+import com.company.project.model.Order;
+import com.company.project.service.OrderService;
 import com.company.project.core.AbstractService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +15,8 @@ import javax.annotation.Resource;
  */
 @Service
 @Transactional
-public class UserServiceImpl extends AbstractService<User> implements UserService {
+public class OrderServiceImpl extends AbstractService<Order> implements OrderService {
     @Resource
-    private UserMapper userMapper;
+    private OrderMapper orderMapper;
 
 }
