@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,13 +66,15 @@ public class UserController {
     }
 
     @PostMapping("/test")
-    public Result functest(@RequestParam Map<String, String> params) throws Exception {
+    public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
+        HttpSession session = request.getSession();
         HashMap<String,String> result = new HashMap<>();
         Auth auth = new Auth(stringRedisTemplate);
         try {
-            String key = auth.setsession(data);
-            result.put(key, auth.getsession(key));
+            String key = auth.setSession(data);
+            result.put(key, auth.getSession(key));
+            session.setAttribute("uuid",key);
         } catch(Exception e){
             System.out.println(e);
         }

@@ -15,12 +15,18 @@ public class Auth {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-    public String setsession(String uuid) throws Exception {
+    public String setSession(String uuid) throws Exception {
         String keyid = UUID.randomUUID().toString();
         stringRedisTemplate.opsForValue().set(keyid,uuid);
         return keyid;
     }
-    public String getsession(String key) throws Exception{
+    public String getSession(String key) throws Exception{
         return stringRedisTemplate.opsForValue().get(key);
+    }
+    public Boolean hasSession(String key){
+        if(stringRedisTemplate.hasKey(key)){
+            return true;
+        }
+        return false;
     }
 }
