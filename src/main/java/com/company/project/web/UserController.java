@@ -2,6 +2,7 @@ package com.company.project.web;
 
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
+import com.company.project.core.Auth;
 import com.company.project.model.User;
 import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +27,10 @@ import java.util.Map;
 public class UserController {
     @Resource
     private UserService userService;
+
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private  StringRedisTemplate stringRedisTemplate;
+
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -60,11 +64,16 @@ public class UserController {
     }
 
     @PostMapping("/test")
-    public Result functest(@RequestParam Map<String, String> params) {
+    public Result functest(@RequestParam Map<String, String> params) throws Exception {
         String data = params.get("data");
-        String data2 = params.get("data2");
-        stringRedisTemplate.opsForValue().set(data, data2);
-        data = stringRedisTemplate.opsForValue().get(data);
-        return ResultGenerator.genSuccessResult(data);
+        HashMap<String,String> result = new HashMap<>();
+        Auth auth = new Auth(stringRedisTemplate);
+        try {
+            String key = auth.setsession(data);
+            result.put(key, auth.getsession(key));
+        } catch(Exception e){
+            System.out.println(e);
+        }
+        return ResultGenerator.genSuccessResult(result);
     }
 }
