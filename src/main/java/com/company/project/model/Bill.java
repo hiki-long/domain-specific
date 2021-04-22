@@ -3,21 +3,19 @@ package com.company.project.model;
 import javax.persistence.*;
 
 public class Bill {
-    @Column(name = "UUID")
+    @Id
     private String uuid;
 
-    @Column(name = "orderID")
-    private String orderid;
+    private String order;
 
     private Float price;
 
     private String type;
 
-    @Column(name = "paymentID")
-    private String paymentid;
+    private String payment;
 
     /**
-     * @return UUID
+     * @return uuid
      */
     public String getUuid() {
         return uuid;
@@ -31,17 +29,17 @@ public class Bill {
     }
 
     /**
-     * @return orderID
+     * @return order
      */
-    public String getOrderid() {
-        return orderid;
+    public String getOrder() {
+        return order;
     }
 
     /**
-     * @param orderid
+     * @param order
      */
-    public void setOrderid(String orderid) {
-        this.orderid = orderid;
+    public void setOrder(String order) {
+        this.order = order;
     }
 
     /**
@@ -73,16 +71,16 @@ public class Bill {
     }
 
     /**
-     * @return paymentID
+     * @return payment
      */
-    public String getPaymentid() {
-        return paymentid;
+    public String getPayment() {
+        return payment;
     }
 
     /**
-     * @param paymentid
+     * @param payment
      */
-    public void setPaymentid(String paymentid) {
-        this.paymentid = paymentid;
+    public void setPayment(String payment) {
+        this.payment = payment;
     }
 }

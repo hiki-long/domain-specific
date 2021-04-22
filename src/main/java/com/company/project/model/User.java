@@ -3,6 +3,7 @@ package com.company.project.model;
 import javax.persistence.*;
 
 public class User {
+    @Id
     private String uuid;
 
     private String email;
@@ -14,6 +15,8 @@ public class User {
     private String avatar;
 
     private Float rank;
+
+    private String passwd;
 
     /**
      * @return uuid
@@ -97,5 +100,19 @@ public class User {
      */
     public void setRank(Float rank) {
         this.rank = rank;
+    }
+
+    /**
+     * @return passwd
+     */
+    public String getPasswd() {
+        return passwd;
+    }
+
+    /**
+     * @param passwd
+     */
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 }

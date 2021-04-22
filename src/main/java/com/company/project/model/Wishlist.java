@@ -3,37 +3,36 @@ package com.company.project.model;
 import javax.persistence.*;
 
 public class Wishlist {
-    @Column(name = "ownerID")
-    private String ownerid;
+    @Id
+    private String owner;
 
-    @Column(name = "itemIDs")
-    private String itemids;
+    private String items;
 
     /**
-     * @return ownerID
+     * @return owner
      */
-    public String getOwnerid() {
-        return ownerid;
+    public String getOwner() {
+        return owner;
     }
 
     /**
-     * @param ownerid
+     * @param owner
      */
-    public void setOwnerid(String ownerid) {
-        this.ownerid = ownerid;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     /**
-     * @return itemIDs
+     * @return items
      */
-    public String getItemids() {
-        return itemids;
+    public String getItems() {
+        return items;
     }
 
     /**
-     * @param itemids
+     * @param items
      */
-    public void setItemids(String itemids) {
-        this.itemids = itemids;
+    public void setItems(String items) {
+        this.items = items;
     }
 }

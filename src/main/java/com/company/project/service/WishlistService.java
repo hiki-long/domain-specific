@@ -1,4 +1,5 @@
 package com.company.project.service;
+
 import com.company.project.model.Wishlist;
 import com.company.project.core.Service;
 
