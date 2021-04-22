@@ -1,10 +1,13 @@
 package com.company.project.web;
+
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.User;
 import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,16 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
-* Created by CodeGenerator on 2021/04/21.
-*/
+ * Created by CodeGenerator on 2021/04/21.
+ */
 @RestController
 @RequestMapping("/user")
 public class UserController {
     @Resource
     private UserService userService;
-
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -52,5 +57,14 @@ public class UserController {
         List<User> list = userService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @PostMapping("/test")
+    public Result functest(@RequestParam Map<String, String> params) {
+        String data = params.get("data");
+        String data2 = params.get("data2");
+        stringRedisTemplate.opsForValue().set(data, data2);
+        data = stringRedisTemplate.opsForValue().get(data);
+        return ResultGenerator.genSuccessResult(data);
     }
 }

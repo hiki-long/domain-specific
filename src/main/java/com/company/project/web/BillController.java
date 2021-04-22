@@ -1,4 +1,5 @@
 package com.company.project.web;
+
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Bill;
@@ -14,8 +15,8 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
-* Created by CodeGenerator on 2021/04/21.
-*/
+ * Created by CodeGenerator on 2021/04/21.
+ */
 @RestController
 @RequestMapping("/bill")
 public class BillController {
