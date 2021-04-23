@@ -1,5 +1,6 @@
 package com.company.project.web;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.core.Auth;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by CodeGenerator on 2021/04/21.
@@ -63,6 +65,27 @@ public class UserController {
         List<User> list = userService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @PostMapping("/register")
+    public Result regieter(@RequestParam Map<String,String> params,HttpServletRequest request){
+        String email = params.get("email");
+        String username = params.get("username");
+        String passwd = params.get("passwd");
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPasswd(BCrypt.withDefaults().hashToString(12,passwd.toCharArray()));
+        user.setRole("buyer");
+        user.setAvatar("default");
+        user.setRank(5.0F);
+        user.setUuid(UUID.randomUUID().toString());
+        try {
+            userService.save(user);
+        } catch (Exception e){
+            return ResultGenerator.genFailResult("failed");
+        }
+        return ResultGenerator.genSuccessResult("success");
     }
 
     @PostMapping("/test")
