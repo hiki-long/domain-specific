@@ -72,6 +72,9 @@ public class UserController {
         String email = params.get("email");
         String username = params.get("username");
         String passwd = params.get("passwd");
+        if(userService.findBy("email",email)!=null){
+            return ResultGenerator.genFailResult("email has been used");
+        }
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
@@ -91,16 +94,11 @@ public class UserController {
     @PostMapping("/test")
     public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
-        HttpSession session = request.getSession();
-        HashMap<String,String> result = new HashMap<>();
-        Auth auth = new Auth(stringRedisTemplate);
-        try {
-            String key = auth.setSession(data);
-            result.put(key, auth.getSession(key));
-            session.setAttribute("uuid",key);
-        } catch(Exception e){
-            System.out.println(e);
+        User user = userService.findBy("email",data);
+        if(user != null){
+            return ResultGenerator.genSuccessResult(user.getUuid());
+        }else {
+            return ResultGenerator.genFailResult("unfound");
         }
-        return ResultGenerator.genSuccessResult(result);
     }
 }
