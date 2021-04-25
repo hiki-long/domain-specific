@@ -25,6 +25,21 @@ public class ItemController {
     @Resource
     private ItemService itemService;
 
+    private Item getItemInfo(Map<String, String> params) {
+        String name = params.get("name");
+        String owner = params.get("owner");
+        int remain = Integer.valueOf(params.get("remain"));
+        boolean onsale = Boolean.parseBoolean(params.get("onsale"));
+        String description = params.get("description");
+        Item item = new Item();
+        item.setName(name);
+        item.setOwner(owner);
+        item.setDescription(description);
+        item.setOnsale(onsale);
+        item.setRemain(remain);
+        return item;
+    }
+
     @PostMapping("/add")
     public Result add(Item item) {
         itemService.save(item);
@@ -32,19 +47,23 @@ public class ItemController {
     }
 
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
+    public Result delete(@RequestParam String id) {
         itemService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/update")
     public Result update(Item item) {
-        itemService.update(item);
-        return ResultGenerator.genSuccessResult();
+        try {
+            itemService.update(item);
+        } catch (Exception e) {
+            return ResultGenerator.genFailResult("failed");
+        }
+        return ResultGenerator.genSuccessResult("success");
     }
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
+    public Result detail(@RequestParam String id) {
         Item item = itemService.findById(id);
         return ResultGenerator.genSuccessResult(item);
     }
@@ -59,17 +78,7 @@ public class ItemController {
 
     @PostMapping("/addItem")
     public Result addItem(@RequestParam Map<String, String> params, HttpServletRequest request) {
-        String name = params.get("name");
-        String owner = params.get("owner");
-        int remain = Integer.valueOf(params.get("remain"));
-        boolean onsale = Boolean.parseBoolean(params.get("onsale"));
-        String description = params.get("description");
-        Item item = new Item();
-        item.setName(name);
-        item.setOwner(owner);
-        item.setDescription(description);
-        item.setOnsale(onsale);
-        item.setRemain(remain);
+        Item item = getItemInfo(params);
         item.setUuid(UUID.randomUUID().toString());
         try {
             itemService.save(item);
@@ -78,4 +87,34 @@ public class ItemController {
         }
         return ResultGenerator.genSuccessResult("success");
     }
+
+    @PostMapping("/updateItem")
+    public Result updateItem(@RequestParam Map<String, String> params, HttpServletRequest request) {
+        Item item = getItemInfo(params);
+        try {
+            itemService.update(item);
+        } catch (Exception e) {
+            return ResultGenerator.genFailResult("failed");
+        }
+        return ResultGenerator.genSuccessResult("success");
+
+    }
+
+    @PostMapping("/listAll")
+    public Result listOwnerItem(@RequestParam String UUID, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
+        PageHelper.startPage(page, size);
+        List<Item> list = itemService.findByIds(UUID);
+        PageInfo pageInfo = new PageInfo(list);
+        return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @PostMapping("/listItemByType")
+    public Result listItemByType(@RequestParam String type, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
+        PageHelper.startPage(page, size);
+        List<Item> list = itemService.findByIds(type);
+        PageInfo pageInfo = new PageInfo(list);
+        return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+
 }

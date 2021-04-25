@@ -30,7 +30,7 @@ public class WishlistController {
     }
 
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
+    public Result delete(@RequestParam String id) {
         wishlistService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
@@ -42,7 +42,7 @@ public class WishlistController {
     }
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
+    public Result detail(@RequestParam String id) {
         Wishlist wishlist = wishlistService.findById(id);
         return ResultGenerator.genSuccessResult(wishlist);
     }

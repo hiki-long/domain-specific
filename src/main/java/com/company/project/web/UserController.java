@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
+    public Result delete(@RequestParam String id) {
         userService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
+    public Result detail(@RequestParam String id) {
         User user = userService.findById(id);
         return ResultGenerator.genSuccessResult(user);
     }
