@@ -84,8 +84,10 @@ public class ItemController {
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findAll();
+        int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        PageData pageData=new PageData(length,pageInfo);
+        return ResultGenerator.genSuccessResult(pageData);
     }
 
     @PostMapping("/addItem")
