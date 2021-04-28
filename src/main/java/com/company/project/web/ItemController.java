@@ -19,9 +19,21 @@ import java.util.UUID;
 /**
  * Created by CodeGenerator on 2021/04/21.
  */
+
+
+
 @RestController
 @RequestMapping("/item")
 public class ItemController {
+    private class PageData{
+        int length;
+        PageInfo pageInfo;
+
+        PageData(int length,PageInfo pageInfo){
+            this.length=length;
+            this.pageInfo=pageInfo;
+        }
+    }
     @Resource
     private ItemService itemService;
 
@@ -104,17 +116,20 @@ public class ItemController {
     public Result listOwnerItem(@RequestParam String UUID, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findByIds(UUID);
+        int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        PageData pageData=new PageData(length,pageInfo);
+        return ResultGenerator.genSuccessResult(pageData);
     }
 
     @PostMapping("/listItemByType")
     public Result listItemByType(@RequestParam String type, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findByIds(type);
+        int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        PageData pageData=new PageData(length,pageInfo);
+        return ResultGenerator.genSuccessResult(pageData);
     }
-
 
 }
