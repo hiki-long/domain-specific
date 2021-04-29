@@ -10,6 +10,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
+import tk.mybatis.mapper.entity.Condition;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -111,13 +113,15 @@ public class ItemController {
             return ResultGenerator.genFailResult("failed");
         }
         return ResultGenerator.genSuccessResult("success");
-
     }
 
     @PostMapping("/listAll")
-    public Result listOwnerItem(@RequestParam String UUID, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
+    public Result listOwnerItem(@RequestParam String ownerName, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
-        List<Item> list = itemService.findByIds(UUID);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria=condition.createCriteria();
+        criteria.andEqualTo("owner",ownerName);
+        List<Item> list = itemService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
         PageData pageData=new PageData(length,pageInfo);
@@ -127,7 +131,10 @@ public class ItemController {
     @PostMapping("/listItemByType")
     public Result listItemByType(@RequestParam String type, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
-        List<Item> list = itemService.findByIds(type);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria=condition.createCriteria();
+        criteria.andEqualTo("type",type);
+        List<Item> list = itemService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
         PageData pageData=new PageData(length,pageInfo);

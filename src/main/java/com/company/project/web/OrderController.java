@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import tk.mybatis.mapper.entity.Condition;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -30,6 +32,15 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order")
 public class OrderController {
+    private class PageData{
+        int length;
+        PageInfo pageInfo;
+
+        PageData(int length,PageInfo pageInfo){
+            this.length=length;
+            this.pageInfo=pageInfo;
+        }
+    }
     @Resource
     private OrderService orderService;
 
@@ -108,8 +119,16 @@ public class OrderController {
     }
 
     @PostMapping("/listOrderByUUID")
-    public Result listOrderByUUID(@RequestParam String UUID){
-
-        return ResultGenerator.genSuccessResult("succeess");
+    public Result listOrderByUUID(@RequestParam String buyer,@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size){
+        PageHelper.startPage(page, size);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria=condition.createCriteria();
+        criteria.andEqualTo("buyer",buyer);
+        List<Order> list = orderService.findByCondition(condition);
+        int length=list.size();
+        PageInfo pageInfo = new PageInfo(list);
+        PageData pageData=new PageData(length,pageInfo);
+        return ResultGenerator.genSuccessResult(pageData);
     }
+
 }
