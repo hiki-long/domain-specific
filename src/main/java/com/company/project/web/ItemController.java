@@ -1,5 +1,6 @@
 package com.company.project.web;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
 import com.company.project.core.Result;
@@ -40,11 +41,13 @@ public class ItemController {
     private ItemService itemService;
 
     private Item getItemInfo(Map<String, String> params) {
-        String name = params.get("name");
-        String owner = params.get("owner");
-        int remain = Integer.valueOf(params.get("remain"));
-        boolean onsale = Boolean.parseBoolean(params.get("onsale"));
-        String description = params.get("description");
+        String data=params.get("data");
+        JSONObject jsonObject=JSON.parseObject(data);
+        String name = jsonObject.getString("name");
+        String owner = jsonObject.getString("owner");
+        int remain = Integer.valueOf(jsonObject.getString("remain"));
+        boolean onsale = Boolean.parseBoolean(jsonObject.getString("onsale"));
+        String description = jsonObject.getString("description");
         Item item = new Item();
         item.setName(name);
         item.setOwner(owner);
