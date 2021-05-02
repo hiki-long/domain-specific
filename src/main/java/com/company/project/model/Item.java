@@ -18,6 +18,8 @@ public class Item {
 
     private String description;
 
+    private String type;
+
     /**
      * @return UUID
      */
@@ -100,5 +102,13 @@ public class Item {
      */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void  setType(String type){
+        this.type = type;
+    }
+
+    public String getType(){
+        return type;
     }
 }

@@ -41,19 +41,13 @@ public class ItemController {
     private ItemService itemService;
 
     private Item getItemInfo(Map<String, String> params) {
-        String data=params.get("data");
-        JSONObject jsonObject=JSON.parseObject(data);
-        String name = jsonObject.getString("name");
-        String owner = jsonObject.getString("owner");
-        int remain = Integer.valueOf(jsonObject.getString("remain"));
-        boolean onsale = Boolean.parseBoolean(jsonObject.getString("onsale"));
-        String description = jsonObject.getString("description");
         Item item = new Item();
-        item.setName(name);
-        item.setOwner(owner);
-        item.setDescription(description);
-        item.setOnsale(onsale);
-        item.setRemain(remain);
+        item.setName(params.get("name"));
+        item.setOwner(params.get("owner"));
+        item.setRemain(Integer.parseInt(params.get("remain")));
+        item.setType(params.get("type"));
+        item.setOnsale(Boolean.parseBoolean(params.get("onSale")));
+        item.setDescription(params.get("description"));
         return item;
     }
 
