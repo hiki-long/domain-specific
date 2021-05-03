@@ -8,5 +8,8 @@ import com.company.project.core.Service;
  * Created by CodeGenerator on 2021/04/21.
  */
 public interface UserService extends Service<User> {
+    public void updateUserPasswd(User user);
+    public void updateUserUsername(User user);
+
 
 }
