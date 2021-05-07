@@ -30,7 +30,7 @@ public class ItemController {
     }
 
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
+    public Result delete(@RequestParam String id) {
         itemService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
@@ -42,7 +42,7 @@ public class ItemController {
     }
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
+    public Result detail(@RequestParam String id) {
         Item item = itemService.findById(id);
         return ResultGenerator.genSuccessResult(item);
     }

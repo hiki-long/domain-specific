@@ -2,6 +2,8 @@ package com.company.project.web;
 
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.core.Auth;
@@ -21,10 +23,7 @@ import tk.mybatis.mapper.entity.Example;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by CodeGenerator on 2021/04/21.
@@ -97,10 +96,14 @@ public class UserController {
     public Result login(@RequestParam Map<String,String> params,HttpServletRequest request){
         String email=params.get("email");
         String passwd=params.get("passwd");
+
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
-                return ResultGenerator.genSuccessResult("login success");
+                String uuid=findUser.getUuid();
+                Map<String,String> map=new HashMap<>();
+                map.put("uuid",uuid);
+                return ResultGenerator.genSuccessResult(JSON.toJSONString(map));
             }
         }
         return ResultGenerator.genFailResult("login failed");
@@ -177,6 +180,15 @@ public class UserController {
         findUser.setPasswd(BCrypt.withDefaults().hashToString(12,newpasswd.toCharArray()));
         userService.updateUserPasswd(findUser);
         return ResultGenerator.genSuccessResult("reset success");
+    }
+    @PostMapping("/logout")
+    public Result logout(HttpServletRequest request){
+        Enumeration em = request.getSession().getAttributeNames();
+        while(em.hasMoreElements()){
+            request.getSession().removeAttribute((em.nextElement().toString()));
+        }
+        return ResultGenerator.genSuccessResult("successfully quit");
+
     }
 
 
