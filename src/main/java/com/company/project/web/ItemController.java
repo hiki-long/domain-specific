@@ -28,15 +28,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/item")
 public class ItemController {
-    private class PageData{
-        int length;
-        PageInfo pageInfo;
-
-        PageData(int length,PageInfo pageInfo){
-            this.length=length;
-            this.pageInfo=pageInfo;
-        }
-    }
     @Resource
     private ItemService itemService;
 
@@ -85,8 +76,7 @@ public class ItemController {
         List<Item> list = itemService.findAll();
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        PageData pageData=new PageData(length,pageInfo);
-        return ResultGenerator.genSuccessResult(pageData);
+        return ResultGenerator.genSuccessResult(pageInfo);
     }
 
     @PostMapping("/addItem")
@@ -121,8 +111,7 @@ public class ItemController {
         List<Item> list = itemService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        PageData pageData=new PageData(length,pageInfo);
-        return ResultGenerator.genSuccessResult(pageData);
+        return ResultGenerator.genSuccessResult(pageInfo);
     }
 
     @PostMapping("/listItemByType")
@@ -134,8 +123,7 @@ public class ItemController {
         List<Item> list = itemService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        PageData pageData=new PageData(length,pageInfo);
-        return ResultGenerator.genSuccessResult(pageData);
+        return ResultGenerator.genSuccessResult(pageInfo);
     }
 
 }

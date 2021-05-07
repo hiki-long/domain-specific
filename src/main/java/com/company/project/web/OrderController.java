@@ -32,15 +32,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order")
 public class OrderController {
-    private class PageData{
-        int length;
-        PageInfo pageInfo;
-
-        PageData(int length,PageInfo pageInfo){
-            this.length=length;
-            this.pageInfo=pageInfo;
-        }
-    }
     @Resource
     private OrderService orderService;
 
@@ -127,8 +118,7 @@ public class OrderController {
         List<Order> list = orderService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
-        PageData pageData=new PageData(length,pageInfo);
-        return ResultGenerator.genSuccessResult(pageData);
+        return ResultGenerator.genSuccessResult(pageInfo);
     }
 
 }
