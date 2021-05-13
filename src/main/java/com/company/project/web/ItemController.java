@@ -64,13 +64,13 @@ public class ItemController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @PostMapping("/detail")
+    @GetMapping("/detail")
     public Result detail(@RequestParam String id) {
         Item item = itemService.findById(id);
         return ResultGenerator.genSuccessResult(item);
     }
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findAll();
@@ -102,7 +102,7 @@ public class ItemController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @PostMapping("/listAll")
+    @GetMapping("/listAll")
     public Result listOwnerItem(@RequestParam String ownerName, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
@@ -114,12 +114,12 @@ public class ItemController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
-    @PostMapping("/listItemByType")
+    @GetMapping("/listItemByType")
     public Result listItemByType(@RequestParam String type, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
         Example.Criteria criteria=condition.createCriteria();
-        criteria.andEqualTo("type",type);
+        criteria.andLike("type","%"+type+"%");
         List<Item> list = itemService.findByCondition(condition);
         int length=list.size();
         PageInfo pageInfo = new PageInfo(list);

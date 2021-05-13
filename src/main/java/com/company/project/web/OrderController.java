@@ -11,10 +11,7 @@ import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.http.HttpRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
@@ -53,13 +50,13 @@ public class OrderController {
         return ResultGenerator.genSuccessResult();
     }
 
-    @PostMapping("/detail")
+    @GetMapping("/detail")
     public Result detail(@RequestParam String id) {
         Order order = orderService.findById(id);
         return ResultGenerator.genSuccessResult(order);
     }
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Order> list = orderService.findAll();
@@ -109,7 +106,7 @@ public class OrderController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @PostMapping("/listOrderByUUID")
+    @GetMapping("/listOrderByUUID")
     public Result listOrderByUUID(@RequestParam String buyer,@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size){
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
