@@ -41,6 +41,10 @@ public class ItemController {
         item.setDescription(params.get("description"));
         return item;
     }
+    private void listItemFilter(Example.Criteria criteria){
+        criteria.andEqualTo("onSale",true);
+
+    }
 
     @PostMapping("/add")
     public Result add(Item item) {
@@ -64,13 +68,13 @@ public class ItemController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @PostMapping("/detail")
+    @GetMapping("/detail")
     public Result detail(@RequestParam String id) {
         Item item = itemService.findById(id);
         return ResultGenerator.genSuccessResult(item);
     }
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findAll();
@@ -102,27 +106,39 @@ public class ItemController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @PostMapping("/listAll")
+    @GetMapping("/listAll")
     public Result listOwnerItem(@RequestParam String ownerName, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
         Example.Criteria criteria=condition.createCriteria();
+        listItemFilter(criteria);
         criteria.andEqualTo("owner",ownerName);
         List<Item> list = itemService.findByCondition(condition);
-        int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
-    @PostMapping("/listItemByType")
+    @GetMapping("/listItemByType")
     public Result listItemByType(@RequestParam String type, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
         Example.Criteria criteria=condition.createCriteria();
-        criteria.andEqualTo("type",type);
+        listItemFilter(criteria);
+        criteria.andLike("type","%"+type+"%");
         List<Item> list = itemService.findByCondition(condition);
-        int length=list.size();
         PageInfo pageInfo = new PageInfo(list);
+        return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @GetMapping("/listItemByPrice")
+    public Result listItemByPrice(@RequestParam float lowPrice,@RequestParam float highPrice,@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size){
+        PageHelper.startPage(page,size);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria= condition.createCriteria();
+        listItemFilter(criteria);
+        criteria.andBetween("price",lowPrice,highPrice);
+        List<Item> list=itemService.findByCondition(condition);
+        PageInfo pageInfo=new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
