@@ -115,7 +115,7 @@ public class WishlistController {
                         }
                     }
                     else {
-                        stringBuilder.append(record[i]);
+                        stringBuilder.append(record[i]+"#");
                     }
                 }
                 findWishlist.setItems(stringBuilder.toString());

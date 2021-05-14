@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(filterName = "userFilter",urlPatterns = {"/user/list"})
+@WebFilter(filterName = "userFilter",urlPatterns = {"/user/list","/user/login","/user/changePasswd","/user/changeUsername","/user/forgetPasswd","/user/logout"})
 public class AuthFilter implements Filter {
 
     @Autowired

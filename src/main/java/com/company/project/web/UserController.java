@@ -36,6 +36,8 @@ public class UserController {
 
     @Autowired
     private  StringRedisTemplate stringRedisTemplate;
+    private Auth auth;
+
 
     @PostMapping("/add")
     public Result add(User user) {
@@ -93,16 +95,26 @@ public class UserController {
         return ResultGenerator.genSuccessResult("success");
     }
     @PostMapping("/login")
-    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request){
+    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request)  {
         String email=params.get("email");
         String passwd=params.get("passwd");
-
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
                 String uuid=findUser.getUuid();
+                String keyid=null;
+                try {
+                     keyid= auth.setSession(uuid);
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+                HttpSession session=request.getSession();
+                if(session!=null){
+                    session.setAttribute("uuid",keyid);
+                }
                 Map<String,String> map=new HashMap<>();
-                map.put("uuid",uuid);
+                map.put("uuid",keyid);
+
                 return ResultGenerator.genSuccessResult(JSON.toJSONString(map));
             }
         }
@@ -118,23 +130,22 @@ public class UserController {
 
     @PostMapping("/changePasswd")
     public Result changePasswd(@RequestParam Map<String,String> params,HttpServletRequest request){
-        String email=params.get("email");
-        String passwd=params.get("passwd");
-        String newpasswd=params.get("newpasswd");
-        User findUser=null;
-        if((findUser=userService.findBy("email",email))!=null){
-            if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
-                findUser.setPasswd(BCrypt.withDefaults().hashToString(12,newpasswd.toCharArray()));
-                userService.updateUserPasswd(findUser);
-                return ResultGenerator.genSuccessResult("success");
+            String email = params.get("email");
+            String passwd = params.get("passwd");
+            String newpasswd = params.get("newpasswd");
+            User findUser = null;
+            if ((findUser = userService.findBy("email", email)) != null) {
+                if (BCrypt.verifyer().verify(passwd.toCharArray(), findUser.getPasswd().toCharArray()).verified) {
+                    findUser.setPasswd(BCrypt.withDefaults().hashToString(12, newpasswd.toCharArray()));
+                    userService.updateUserPasswd(findUser);
+                    return ResultGenerator.genSuccessResult("success");
+                } else {
+                    return ResultGenerator.genFailResult("old password wrong");
+                }
+            } else {
+                return ResultGenerator.genFailResult("find user error");
             }
-            else{
-                return ResultGenerator.genFailResult("old password wrong");
-            }
-        }
-        else{
-            return  ResultGenerator.genFailResult("find user error");
-        }
+
     }
     /*
     模块：修改用户名
@@ -181,12 +192,26 @@ public class UserController {
         userService.updateUserPasswd(findUser);
         return ResultGenerator.genSuccessResult("reset success");
     }
+    /*
+    ①将相应的attribute从session中移除。
+    ②将相应的key从redis中进行移除。
+     */
     @PostMapping("/logout")
     public Result logout(HttpServletRequest request){
         Enumeration em = request.getSession().getAttributeNames();
+        String attribute=null;
+        String keyid=null;
         while(em.hasMoreElements()){
-            request.getSession().removeAttribute((em.nextElement().toString()));
+            attribute=em.nextElement().toString();
+            if(attribute=="uuid"){
+                keyid=(String) request.getSession().getAttribute(attribute);
+                request.getSession().removeAttribute(attribute);
+            }
         }
+        if(keyid!=null) {
+            stringRedisTemplate.delete(keyid);
+        }
+
         return ResultGenerator.genSuccessResult("successfully quit");
 
     }

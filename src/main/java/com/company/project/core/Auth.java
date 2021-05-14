@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
 public class Auth {
@@ -18,6 +19,7 @@ public class Auth {
     public String setSession(String uuid) throws Exception {
         String keyid = UUID.randomUUID().toString();
         stringRedisTemplate.opsForValue().set(keyid,uuid);
+        stringRedisTemplate.expire(keyid,30*60, TimeUnit.SECONDS);
         return keyid;
     }
     public String getSession(String key) throws Exception{
