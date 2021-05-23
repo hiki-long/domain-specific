@@ -39,10 +39,12 @@ public class ItemController {
         item.setType(params.get("type"));
         item.setOnsale(Boolean.parseBoolean(params.get("onSale")));
         item.setDescription(params.get("description"));
+        item.setImage(params.get("image"));
+        item.setPrice(Double.parseDouble(params.get("price")));
         return item;
     }
     private void listItemFilter(Example.Criteria criteria){
-        criteria.andEqualTo("onSale",true);
+        criteria.andEqualTo("onsale",true);
 
     }
 
@@ -106,13 +108,24 @@ public class ItemController {
         return ResultGenerator.genSuccessResult("success");
     }
 
-    @GetMapping("/listAll")
+    @GetMapping("/listByOwner")
     public Result listOwnerItem(@RequestParam String ownerName, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition=new Condition(Item.class);
         Example.Criteria criteria=condition.createCriteria();
         listItemFilter(criteria);
         criteria.andEqualTo("owner",ownerName);
+        List<Item> list = itemService.findByCondition(condition);
+        PageInfo pageInfo = new PageInfo(list);
+        return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @GetMapping("/listAll")
+    public Result listOwnerItem(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
+        PageHelper.startPage(page, size);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria=condition.createCriteria();
+        listItemFilter(criteria);
         List<Item> list = itemService.findByCondition(condition);
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
