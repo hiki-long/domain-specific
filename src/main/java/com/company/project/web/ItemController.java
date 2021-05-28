@@ -142,4 +142,18 @@ public class ItemController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
+    @GetMapping("/listItemByName")
+    public Result listItemByName(@RequestParam String name,@RequestParam(defaultValue = "0") Integer page,@RequestParam(defaultValue = "0") Integer size ){
+        PageHelper.startPage(page,size);
+        Condition condition=new Condition(Item.class);
+        Example.Criteria criteria=condition.createCriteria();
+        listItemFilter(criteria);
+        criteria.andLike("name","%"+name+"%");
+        criteria.andLike("name",name+"%");
+        criteria.andLike("name","%"+name);
+        List<Item> list=itemService.findByCondition(condition);
+        PageInfo pageInfo=new PageInfo(list);
+        return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
 }
