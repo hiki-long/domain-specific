@@ -20,6 +20,10 @@ public class Item {
 
     private String type;
 
+    private double price;
+
+    private String image;
+
     /**
      * @return UUID
      */
@@ -110,5 +114,21 @@ public class Item {
 
     public String getType(){
         return type;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getImage() {
+        return image;
     }
 }
