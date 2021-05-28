@@ -81,7 +81,7 @@ public class ItemController {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findAll();
         int length = list.size();
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
@@ -118,7 +118,7 @@ public class ItemController {
         listItemFilter(criteria);
         criteria.andEqualTo("owner", ownerName);
         List<Item> list = itemService.findByCondition(condition);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
     @CrossOrigin
@@ -129,7 +129,7 @@ public class ItemController {
         Example.Criteria criteria = condition.createCriteria();
         listItemFilter(criteria);
         List<Item> list = itemService.findByCondition(condition);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
@@ -142,7 +142,7 @@ public class ItemController {
         listItemFilter(criteria);
         criteria.andLike("type", "%" + type + "%");
         List<Item> list = itemService.findByCondition(condition);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
@@ -155,7 +155,7 @@ public class ItemController {
         listItemFilter(criteria);
         criteria.andBetween("price", lowPrice, highPrice);
         List<Item> list = itemService.findByCondition(condition);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
@@ -170,7 +170,7 @@ public class ItemController {
         criteria.andLike("name", name + "%");
         criteria.andLike("name", "%" + name);
         List<Item> list = itemService.findByCondition(condition);
-        PageInfo pageInfo = new PageInfo(list);
+        PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 }
