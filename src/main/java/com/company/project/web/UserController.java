@@ -191,32 +191,6 @@ public class UserController {
         return ResultGenerator.genSuccessResult("successfully quit");
 
     }
-
-
-    @PostMapping("/register")
-    public Result regieter(@RequestParam Map<String,String> params,HttpServletRequest request){
-        String email = params.get("email");
-        String username = params.get("username");
-        String passwd = params.get("passwd");
-        if(userService.findBy("email",email)!=null){
-            return ResultGenerator.genFailResult("email has been used");
-        }
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPasswd(BCrypt.withDefaults().hashToString(12,passwd.toCharArray()));
-        user.setRole("buyer");
-        user.setAvatar("default");
-        user.setRank(5.0F);
-        user.setUuid(UUID.randomUUID().toString());
-        try {
-            userService.save(user);
-        } catch (Exception e){
-            return ResultGenerator.genFailResult("failed");
-        }
-        return ResultGenerator.genSuccessResult("success");
-    }
-
     @PostMapping("/test")
     public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
