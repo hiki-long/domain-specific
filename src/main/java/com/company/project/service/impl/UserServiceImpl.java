@@ -18,5 +18,23 @@ import javax.annotation.Resource;
 public class UserServiceImpl extends AbstractService<User> implements UserService {
     @Resource
     private UserMapper userMapper;
+    @Override
+    public void updateUserPasswd(User user) {
+        userMapper.updateUserPasswd(user);
+    }
 
+    @Override
+    public void updateUserUsername(User user) {
+        userMapper.updateUserUsername(user);
+    }
+
+    @Override
+    public void deleteById(String id) {
+
+    }
+
+    @Override
+    public User findById(String id) {
+        return null;
+    }
 }

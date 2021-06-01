@@ -13,4 +13,11 @@
         <result column="rank" jdbcType="REAL" property="rank"/>
         <result column="passwd" jdbcType="VARCHAR" property="passwd"/>
     </resultMap>
+    <update id="updateUserPasswd" parameterType="com.company.project.model.User">
+        update user set passwd=#{passwd} where email=#{email}
+    </update>
+    <update id="updateUserUsername" parameterType="com.company.project.model.User">
+        update user set username=#{username} where email=#{email}
+    </update>
+
 </mapper>
