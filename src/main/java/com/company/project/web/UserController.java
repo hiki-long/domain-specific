@@ -94,21 +94,21 @@ public class UserController {
         return ResultGenerator.genSuccessResult("success");
     }
     @PostMapping("/login")
-    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request){
+    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request) throws Exception {
         String email=params.get("email");
         String passwd=params.get("passwd");
-
+        HttpSession session = request.getSession();
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
                 String uuid=findUser.getUuid();
-                Map<String,String> map=new HashMap<>();
-                map.put("uuid",uuid);
-                return ResultGenerator.genSuccessResult(JSON.toJSONString(map));
+                Auth auth = new Auth(stringRedisTemplate);
+                String uuid_key = auth.setSession(uuid);
+                session.setAttribute("uuid",uuid_key);
+                return ResultGenerator.genSuccessResult("success");
             }
         }
         return ResultGenerator.genFailResult("login failed");
-
     }
     /*
     模块：修改密码（登录后状态，需要和忘记密码的修改密码做出区分）
@@ -194,7 +194,7 @@ public class UserController {
     @PostMapping("/test")
     public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
         HashMap<String,String> result = new HashMap<>();
         Auth auth = new Auth(stringRedisTemplate);
         try {

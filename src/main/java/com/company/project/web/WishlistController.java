@@ -1,5 +1,8 @@
 package com.company.project.web;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Wishlist;
@@ -7,10 +10,9 @@ import com.company.project.service.WishlistService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -25,6 +27,10 @@ import java.util.Map;
 public class WishlistController {
     @Resource
     private WishlistService wishlistService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    private Auth auth;
 
     @PostMapping("/add")
     public Result add(Wishlist wishlist) {
@@ -129,5 +135,14 @@ public class WishlistController {
         else {
             return ResultGenerator.genFailResult("error");
         }
+    }
+
+    @GetMapping("listItem")
+    public Result listItem(HttpServletRequest request) throws Exception {
+        HttpSession session = request.getSession(false);
+        Auth auth = new Auth(stringRedisTemplate);
+        Wishlist wishlist =wishlistService.findBy("owner",auth.getSession((String) session.getAttribute("uuid")));
+        //JSONArray json = JSONObject.parseArray(wishlist.getItems());
+        return ResultGenerator.genSuccessResult(wishlist.getItems());
     }
 }
