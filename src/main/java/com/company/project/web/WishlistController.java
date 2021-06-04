@@ -1,5 +1,8 @@
 package com.company.project.web;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Wishlist;
@@ -7,17 +10,15 @@ import com.company.project.service.WishlistService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.net.http.HttpRequest;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by CodeGenerator on 2021/04/21.
@@ -27,6 +28,11 @@ import java.util.Map;
 public class WishlistController {
     @Resource
     private WishlistService wishlistService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private Auth auth;
 
     @PostMapping("/add")
     public Result add(Wishlist wishlist) {
@@ -60,36 +66,61 @@ public class WishlistController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
     @PostMapping("/addWishlist")
-    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request){
+    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
         HttpSession httpSession=null;
         httpSession=request.getSession();
         if(httpSession==null){
             return ResultGenerator.genFailResult("连接断开了");
         }
-        Object tryUUID=httpSession.getAttribute("uuid");
+        String tryUUID=(String)httpSession.getAttribute("uuid");
         if(tryUUID==null){
             return ResultGenerator.genFailResult("Not logged in");
         }
-        String ownerUUID =tryUUID.toString();
+        String ownerUUID =auth.getSession(tryUUID);
+        if(ownerUUID==null){
+            return ResultGenerator.genFailResult("redis中没有存相应的uuid");
+        }
         Wishlist findwishlist=null;
-        findwishlist=wishlistService.findBy("uuid",ownerUUID);
+        findwishlist=wishlistService.findBy("owner",ownerUUID);
         int addNum=Integer.parseInt(number);
+        String newItems=null;
         if(findwishlist==null) {//当购物车中没有响应的数据
             Wishlist wishlist = new Wishlist();
             wishlist.setOwner(ownerUUID);
-            StringBuilder builder=new StringBuilder();
-            String newItemUUID=itemUUID+"#";
-            for(int i=0;i<addNum;i++){
-                builder.append(newItemUUID);
-            }
-            wishlist.setItems(builder.toString());
+            Map<String,Object> map= new HashMap<>();
+            map.put("num",addNum);
+            map.put("id",itemUUID);
+            JSONArray jsonArray=new JSONArray();
+            jsonArray.add(map);
+            newItems=jsonArray.toJSONString();
+            wishlist.setItems(newItems);
             wishlistService.save(wishlist);
+            return ResultGenerator.genSuccessResult("Successfully insert");
         }
-        else{
-             StringBuilder stringBuilder=new StringBuilder(findwishlist.getItems());
-             stringBuilder.append(itemUUID+"#");
-             findwishlist.setItems(stringBuilder.toString());
-             wishlistService.update(findwishlist);
+        else{//当购物车有相应的数据
+            JSONArray jsonArray=JSONObject.parseArray(findwishlist.getItems());
+            ArrayList<Map<String,Object>> list=new ArrayList<>();
+            boolean hasItem=false;
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject jsonObject= (JSONObject) jsonArray.get(i);
+                Map<String,Object> curMap=jsonObject.getInnerMap();
+                if(((String)(curMap.get("id"))).equals(ownerUUID)){
+                    hasItem=true;
+                    Integer oldNum= (Integer) curMap.get("num");
+                    Integer newNum=oldNum+addNum;
+                    curMap.put("num",newNum);
+                }
+                list.add(curMap);
+            }
+            if(!hasItem){//其中没有相应的uuid时
+                Map<String,Object> newMap=new HashMap<>();
+                newMap.put("id",itemUUID);
+                newMap.put("num",addNum);
+                list.add(newMap);
+            }
+            String result=JSONObject.toJSONString(list);
+            findwishlist.setItems(result);
+            wishlistService.update(findwishlist);
         }
         return ResultGenerator.genSuccessResult("successfully insert");
     }
@@ -97,45 +128,68 @@ public class WishlistController {
     需要传入的参数，删除的是什么，删除的数量
      */
     @PostMapping("removeWishlist")
-    public Result removeWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request){
-        HttpSession httpSession=request.getSession();
-        if(httpSession!=null) {
-            Object tryUUID = httpSession.getAttribute("uuid");
-            if (tryUUID == null) {
-                return ResultGenerator.genFailResult("Not logged in");
-            }
-            String ownerUUID = tryUUID.toString();
-            Wishlist findWishlist = null;
-            if((findWishlist=wishlistService.findBy("owner",ownerUUID))!=null){
-                String oldItemUUID =findWishlist.getItems();
-                String[] record = oldItemUUID.split("#");
-                int deleteNum=Integer.parseInt(number);
-                StringBuilder stringBuilder=new StringBuilder();
-                for(int i=0;i<record.length;i++){
-                    if(record[i].equals(itemUUID)){
-                        if(deleteNum!=-1) {//如果是-1，则会将所有的相应字段删除
-                            deleteNum--;
-                        }
-                        if(deleteNum==0){
-                            break;
-                        }
-                    }
-                    else {
-                        stringBuilder.append(record[i]+"#");
-                    }
-                }
-                findWishlist.setItems(stringBuilder.toString());
-                wishlistService.update(findWishlist);
-                return ResultGenerator.genSuccessResult("successfully delete");
-            }
-            else{
-                return ResultGenerator.genFailResult("not exsit");
-            }
-
-
+    public Result removeWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
+        HttpSession httpSession=null;
+        httpSession=request.getSession();
+        if(httpSession==null){
+            return ResultGenerator.genFailResult("连接断开了");
+        }
+        String tryUUID=(String)httpSession.getAttribute("uuid");
+        if(tryUUID==null){
+            return ResultGenerator.genFailResult("Not logged in");
+        }
+        String ownerUUID =auth.getSession(tryUUID);
+        if(ownerUUID==null){
+            return ResultGenerator.genFailResult("redis中没有存相应的uuid");
+        }
+        Wishlist findwishlist=null;
+        findwishlist=wishlistService.findBy("owner",ownerUUID);
+        int minNum=Integer.parseInt(number);
+        boolean hasItem=false;
+        boolean success=true;
+        if(findwishlist==null){
+            return ResultGenerator.genFailResult("没有相应的数据");
         }
         else {
-            return ResultGenerator.genFailResult("error");
+            JSONArray jsonArray=JSONObject.parseArray(findwishlist.getItems());
+            ArrayList<Map<String,Object>> list=new ArrayList<>();
+
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject jsonObject= (JSONObject) jsonArray.get(i);
+                Map<String,Object> curMap=jsonObject.getInnerMap();
+                if(((String)(curMap.get("id"))).equals(ownerUUID)){
+                    hasItem=true;
+                    Integer oldNum= (Integer) curMap.get("num");
+                    if(oldNum>=minNum) {
+                        Integer newNum = oldNum - minNum;
+                        curMap.put("num", newNum);
+                    }
+                    else {
+                        success=false;
+                    }
+                }
+                list.add(curMap);
+            }
+
+            String result=JSONObject.toJSONString(list);
+            findwishlist.setItems(result);
+            wishlistService.update(findwishlist);
+
         }
+        if(!hasItem||!success){
+            return  ResultGenerator.genFailResult("不存在Item或者数据不足");
+        }
+        else {
+            return ResultGenerator.genSuccessResult("成功插入");
+        }
+
+    }
+    @GetMapping("listItem")
+    public Result listItem(HttpServletRequest request) throws Exception {
+        HttpSession session = request.getSession(false);
+        Wishlist wishlist =wishlistService.findBy("owner",auth.getSession((String) session.getAttribute("uuid")));
+        return ResultGenerator.genSuccessResult(wishlist.getItems());
     }
 }
+
+

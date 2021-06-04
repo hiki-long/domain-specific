@@ -45,10 +45,9 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-
-
-
-
+     {
+        auth=new Auth(stringRedisTemplate);
+    }
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -108,7 +107,7 @@ public class UserController {
     @PostMapping("/login")
     public Result login(@RequestParam Map<String,String> params,HttpServletRequest request)  {
         String email=params.get("email");
-        String passwd=params.get("pw");
+        String passwd=params.get("passwd");
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
