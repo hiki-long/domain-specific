@@ -61,7 +61,11 @@ public class WishlistController {
     }
     @PostMapping("/addWishlist")
     public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request){
-        HttpSession httpSession=request.getSession();
+        HttpSession httpSession=null;
+        httpSession=request.getSession();
+        if(httpSession==null){
+            return ResultGenerator.genFailResult("连接断开了");
+        }
         Object tryUUID=httpSession.getAttribute("uuid");
         if(tryUUID==null){
             return ResultGenerator.genFailResult("Not logged in");
@@ -85,7 +89,7 @@ public class WishlistController {
              StringBuilder stringBuilder=new StringBuilder(findwishlist.getItems());
              stringBuilder.append(itemUUID+"#");
              findwishlist.setItems(stringBuilder.toString());
-            wishlistService.update(findwishlist);
+             wishlistService.update(findwishlist);
         }
         return ResultGenerator.genSuccessResult("successfully insert");
     }
@@ -109,7 +113,9 @@ public class WishlistController {
                 StringBuilder stringBuilder=new StringBuilder();
                 for(int i=0;i<record.length;i++){
                     if(record[i].equals(itemUUID)){
-                        deleteNum--;
+                        if(deleteNum!=-1) {//如果是-1，则会将所有的相应字段删除
+                            deleteNum--;
+                        }
                         if(deleteNum==0){
                             break;
                         }

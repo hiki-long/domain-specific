@@ -3,12 +3,14 @@ package com.company.project.core;
 
 import org.junit.runner.RunWith;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SpringRunner.class)
+@Component
 public class Auth {
     private StringRedisTemplate stringRedisTemplate;
 
