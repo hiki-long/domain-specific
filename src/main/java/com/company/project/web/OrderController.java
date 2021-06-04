@@ -16,6 +16,7 @@ import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.sql.Struct;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,6 +32,12 @@ import java.util.Map;
 public class OrderController {
     @Resource
     private OrderService orderService;
+
+    private class ItemNumber {
+        String itemUUID;
+        Integer number;
+        float price;
+    }
 
     @PostMapping("/add")
     public Result add(Order order) {
@@ -64,18 +71,19 @@ public class OrderController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
+    @CrossOrigin
     @PostMapping("/createOrder")
-    public Result createOrder(@RequestParam Map<String,String> params){
-        String itemData=params.get("itemData");
-        List<Item> items=JSON.parseArray(itemData,Item.class);
-        String buyer=params.get("buyer");
-        String delivery=params.get("delivery");
-        Date time=new Date();
-        int paid=Integer.parseInt(params.get("paid"));
+    public Result createOrder(@RequestParam Map<String, String> params) {
+        String itemData = params.get("itemData");
+        List<Item> items = JSON.parseArray(itemData, Item.class);
+        String buyer = params.get("buyer");
+        String delivery = params.get("delivery");
+        Date time = new Date();
+        int paid = Integer.parseInt(params.get("paid"));
         //TODO:finish项的类型需要确定
-        String comment=params.get("comment");
+        String comment = params.get("comment");
 
-        Order order=new Order();
+        Order order = new Order();
         order.setItems(JSON.toJSONString(items));
         order.setBuyer(buyer);
         order.setDelivery(delivery);
@@ -91,31 +99,42 @@ public class OrderController {
         return ResultGenerator.genSuccessResult("success");
     }
 
+    @CrossOrigin
     @PostMapping("/setBill")
-    public Result setBill(@RequestParam String orderUUID,String billUUID){
-        Order order=orderService.findById(orderUUID);
+    public Result setBill(@RequestParam String orderUUID, String billUUID) {
+        Order order = orderService.findById(orderUUID);
         order.setBill(billUUID);
         order.setPaid(true);
         return ResultGenerator.genSuccessResult("success");
     }
 
+    @CrossOrigin
     @PostMapping("/setFinish")
-    public Result setFinish(@RequestParam String orderUUID){
-        Order order=orderService.findById(orderUUID);
+    public Result setFinish(@RequestParam String orderUUID) {
+        Order order = orderService.findById(orderUUID);
         order.setFinish(true);
         return ResultGenerator.genSuccessResult("success");
     }
 
+    @CrossOrigin
     @GetMapping("/listOrderByUUID")
-    public Result listOrderByUUID(@RequestParam String buyer,@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size){
+    public Result listOrderByUUID(@RequestParam String buyer, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        Condition condition=new Condition(Item.class);
-        Example.Criteria criteria=condition.createCriteria();
-        criteria.andEqualTo("buyer",buyer);
+        Condition condition = new Condition(Item.class);
+        Example.Criteria criteria = condition.createCriteria();
+        criteria.andEqualTo("buyer", buyer);
         List<Order> list = orderService.findByCondition(condition);
-        int length=list.size();
+        int length = list.size();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    public float getTotalPrice(List<ItemNumber> itemNumbers) {
+        int res = 0;
+        for (ItemNumber i : itemNumbers) {
+            res += i.number * i.price;
+        }
+        return res;
     }
 
 }
