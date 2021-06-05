@@ -45,9 +45,7 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    {
-        auth=new Auth(stringRedisTemplate);
-    }
+
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -120,6 +118,7 @@ public class UserController {
          else {
              return ResultGenerator.genFailResult("连接失败");
          }
+         auth=new Auth(stringRedisTemplate);
         String email=params.get("email");
         String passwd=params.get("passwd");
         User findUser=null;

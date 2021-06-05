@@ -190,6 +190,10 @@ public class WishlistController {
     public Result listItem(HttpServletRequest request) throws Exception {
         HttpSession session = request.getSession(false);
         Auth auth = new Auth(stringRedisTemplate);
+        String keyUUID=null;
+        keyUUID= (String) session.getAttribute("uuid");
+        String userUUID=null;
+        userUUID=auth.getSession(keyUUID);
         Wishlist wishlist =wishlistService.findBy("owner",auth.getSession((String) session.getAttribute("uuid")));
         //JSONArray json = JSONObject.parseArray(wishlist.getItems());
         return ResultGenerator.genSuccessResult(wishlist.getItems());
