@@ -45,7 +45,7 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-     {
+    {
         auth=new Auth(stringRedisTemplate);
     }
     @PostMapping("/add")
