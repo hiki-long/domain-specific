@@ -13,17 +13,24 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.awt.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
+import java.util.List;
+
 import java.util.UUID;
 
 /**
@@ -34,10 +41,13 @@ import java.util.UUID;
 public class UserController {
     @Resource
     private UserService userService;
-
+    private Auth auth;
     @Autowired
-    private  StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
+    {
+        auth=new Auth(stringRedisTemplate);
+    }
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -74,7 +84,7 @@ public class UserController {
     public Result regieter(@RequestParam Map<String,String> params,HttpServletRequest request){
         String email = params.get("email");
         String username = params.get("username");
-        String passwd = params.get("passwd");
+        String passwd = params.get("password");
         if(userService.findBy("email",email)!=null){
             return ResultGenerator.genFailResult("email has been used");
         }
@@ -93,22 +103,48 @@ public class UserController {
         }
         return ResultGenerator.genSuccessResult("success");
     }
+
     @PostMapping("/login")
-    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request) throws Exception {
+    public Result login(@RequestParam Map<String,String> params,HttpServletRequest request)  {
+
+         HttpSession session=null;//先判断是否已经登录
+         session=request.getSession();
+         if(session!=null){
+             String tryUUID= (String) session.getAttribute("uuid");
+             if(tryUUID!=null){
+                 if(auth.hasSession(tryUUID)){
+                     return ResultGenerator.genFailResult("已经登录了");
+                 }
+             }
+         }
+         else {
+             return ResultGenerator.genFailResult("连接失败");
+         }
         String email=params.get("email");
         String passwd=params.get("passwd");
-        HttpSession session = request.getSession();
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
-                String uuid=findUser.getUuid();
-                Auth auth = new Auth(stringRedisTemplate);
-                String uuid_key = auth.setSession(uuid);
-                session.setAttribute("uuid",uuid_key);
-                return ResultGenerator.genSuccessResult("success");
+                String userUUID=findUser.getUuid();
+                String keyUUID=null;
+                try {
+                     keyUUID= auth.setSession(userUUID);
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                }
+                session=request.getSession();
+                if(session!=null){
+                    session.setAttribute("uuid",keyUUID);
+                }
+
+                Map<String,String> map=new HashMap<>();
+                map.put("uuid",keyUUID);
+
+                return ResultGenerator.genSuccessResult(JSON.toJSONString(map));
             }
         }
         return ResultGenerator.genFailResult("login failed");
+
     }
     /*
     模块：修改密码（登录后状态，需要和忘记密码的修改密码做出区分）
@@ -119,23 +155,22 @@ public class UserController {
 
     @PostMapping("/changePasswd")
     public Result changePasswd(@RequestParam Map<String,String> params,HttpServletRequest request){
-        String email=params.get("email");
-        String passwd=params.get("passwd");
-        String newpasswd=params.get("newpasswd");
-        User findUser=null;
-        if((findUser=userService.findBy("email",email))!=null){
-            if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
-                findUser.setPasswd(BCrypt.withDefaults().hashToString(12,newpasswd.toCharArray()));
-                userService.updateUserPasswd(findUser);
-                return ResultGenerator.genSuccessResult("success");
+            String email = params.get("email");
+            String passwd = params.get("passwd");
+            String newpasswd = params.get("newpasswd");
+            User findUser = null;
+            if ((findUser = userService.findBy("email", email)) != null) {
+                if (BCrypt.verifyer().verify(passwd.toCharArray(), findUser.getPasswd().toCharArray()).verified) {
+                    findUser.setPasswd(BCrypt.withDefaults().hashToString(12, newpasswd.toCharArray()));
+                    userService.updateUserPasswd(findUser);
+                    return ResultGenerator.genSuccessResult("success");
+                } else {
+                    return ResultGenerator.genFailResult("old password wrong");
+                }
+            } else {
+                return ResultGenerator.genFailResult("find user error");
             }
-            else{
-                return ResultGenerator.genFailResult("old password wrong");
-            }
-        }
-        else{
-            return  ResultGenerator.genFailResult("find user error");
-        }
+
     }
     /*
     模块：修改用户名
@@ -182,29 +217,159 @@ public class UserController {
         userService.updateUserPasswd(findUser);
         return ResultGenerator.genSuccessResult("reset success");
     }
+    /*
+    ①将相应的attribute从session中移除。
+    ②将相应的key从redis中进行移除。
+     */
     @PostMapping("/logout")
     public Result logout(HttpServletRequest request){
         Enumeration em = request.getSession().getAttributeNames();
+        String attribute=null;
+        String keyid=null;
         while(em.hasMoreElements()){
-            request.getSession().removeAttribute((em.nextElement().toString()));
+            attribute=em.nextElement().toString();
+            if(attribute=="uuid"){
+                keyid=(String) request.getSession().getAttribute(attribute);
+                request.getSession().removeAttribute(attribute);
+            }
         }
+        if(keyid!=null) {
+            stringRedisTemplate.delete(keyid);
+        }
+
         return ResultGenerator.genSuccessResult("successfully quit");
 
     }
+    /*
+    用于上传头像,
+     */
+    @CrossOrigin(allowCredentials = "true")
+    @PostMapping("/uploadAvatar")
+    public Result uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        if(file.isEmpty()){
+            return ResultGenerator.genFailResult("上传失败,请选择文件");
+        }
+//        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+//        response.setHeader("Access-Control-Allow-Credentials", "true");
+//        response.setHeader("P3P", "CP=CAO PSA OUR");
+//        if (request.getHeader("Access-Control-Request-Method") != null && "OPTIONS".equals(request.getMethod())) {
+//            response.addHeader("Access-Control-Allow-Methods", "POST,GET,TRACE,OPTIONS");
+//            response.addHeader("Access-Control-Allow-Headers", "Content-Type,Origin,Accept");
+//            response.addHeader("Access-Control-Max-Age", "120");
+//        }
+        String fileName = file.getOriginalFilename();
+        int idx=fileName.lastIndexOf(".");
+        String extention=fileName.substring(idx);
+        String uuidFileName=UUID.randomUUID().toString().replace("-","")+extention;
+        String filePath = System.getProperty("user.dir")+"/picture/avatar/";
+        String avatarUri =filePath+uuidFileName;
+        File dest=new File(avatarUri);
+        StringBuffer result=new StringBuffer();
+        try {
+            file.transferTo(dest);
+            result.append("成功上传图片");
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        User findUser=null;
+        HttpSession session=null;
+        String uuid=null;
+        String redisuuid=null;
+        session=request.getSession();
+        if(session!=null){//连接无误
+            redisuuid=(String)session.getAttribute("uuid");
+            if(redisuuid!=null){//redis中存在相应的登录信息
+                uuid=auth.getSession(redisuuid);
+                if(uuid!=null) {
+                    findUser = userService.findBy("uuid", uuid);
+                    if (findUser != null) {//是否找到对应的用户
+                        findUser.setAvatar(avatarUri);
+                        userService.update(findUser);
+                        return ResultGenerator.genSuccessResult("成功更新头像");
+                    }
+                    return ResultGenerator.genFailResult("没有找到对应的对象");
+                }
+                return ResultGenerator.genFailResult("redis中没有相应的登录信息");
+            }
+            return ResultGenerator.genFailResult("没有正确的登录信息");
+        }
+        return ResultGenerator.genFailResult("没有正确的进行连接");
+    }
+
+    /*
+    获取相应的图片
+     */
+    @PostMapping(value = "getAvatar",produces = MediaType.IMAGE_PNG_VALUE)
+    public Result getAvatar(HttpServletRequest request){
+        String uuid=null;
+        uuid=getUserSession(request);
+        User findUser=null;
+        String pictureUrl=null;
+        FileInputStream picInput=null;
+        if(uuid!=null){
+            findUser=userService.findById(uuid);
+            if(findUser!=null){
+                pictureUrl=findUser.getAvatar();
+                if(pictureUrl!=null){
+                    try {
+                        picInput=new FileInputStream(pictureUrl);
+                        return ResultGenerator.genSuccessResult(picInput.readAllBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            picInput.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return ResultGenerator.genFailResult("没有相应地址的Url");
+            }
+            return ResultGenerator.genFailResult("没有找到相应的用户");
+        }
+        return ResultGenerator.genFailResult("session中没有相应的uuid");
+
+
+
+
+    }
+
+
+
     @PostMapping("/test")
     public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
-        HttpSession session = request.getSession(false);
-        HashMap<String,String> result = new HashMap<>();
-        Auth auth = new Auth(stringRedisTemplate);
-        try {
-            String key = auth.setSession(data);
-            result.put(key, auth.getSession(key));
-            session.setAttribute("uuid",key);
-        } catch(Exception e){
-            System.out.println(e);
+        User user = userService.findBy("email",data);
+        if(user != null){
+            return ResultGenerator.genSuccessResult(user.getUuid());
+        }else {
+            return ResultGenerator.genFailResult("unfound");
         }
-        return ResultGenerator.genSuccessResult(result);
     }
+
+    private String getUserSession(HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        String redisuuid=null;
+        String uuid=null;
+        if(session!=null){
+            redisuuid=(String)session.getAttribute("uuid");
+            if(redisuuid!=null){
+                try {
+                    uuid=auth.getSession(redisuuid);
+                    if(uuid!=null){
+                       return uuid;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+
+    }
+
 
 }
