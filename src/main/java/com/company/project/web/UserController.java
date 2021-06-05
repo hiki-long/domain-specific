@@ -106,24 +106,39 @@ public class UserController {
 
     @PostMapping("/login")
     public Result login(@RequestParam Map<String,String> params,HttpServletRequest request)  {
+
+         HttpSession session=null;//先判断是否已经登录
+         session=request.getSession();
+         if(session!=null){
+             String tryUUID= (String) session.getAttribute("uuid");
+             if(tryUUID!=null){
+                 if(auth.hasSession(tryUUID)){
+                     return ResultGenerator.genFailResult("已经登录了");
+                 }
+             }
+         }
+         else {
+             return ResultGenerator.genFailResult("连接失败");
+         }
         String email=params.get("email");
         String passwd=params.get("passwd");
         User findUser=null;
         if((findUser=userService.findBy("email",email))!=null){
             if (BCrypt.verifyer().verify(passwd.toCharArray(),findUser.getPasswd().toCharArray()).verified){
-                String uuid=UUID.randomUUID().toString();
-                String keyid=null;
+                String userUUID=findUser.getUuid();
+                String keyUUID=null;
                 try {
-                     keyid= auth.setSession(uuid);
+                     keyUUID= auth.setSession(userUUID);
                 }catch(Exception ex){
                     ex.printStackTrace();
                 }
-                HttpSession session=request.getSession();
+                session=request.getSession();
                 if(session!=null){
-                    session.setAttribute("uuid",keyid);
+                    session.setAttribute("uuid",keyUUID);
                 }
+
                 Map<String,String> map=new HashMap<>();
-                map.put("uuid",keyid);
+                map.put("uuid",keyUUID);
 
                 return ResultGenerator.genSuccessResult(JSON.toJSONString(map));
             }
