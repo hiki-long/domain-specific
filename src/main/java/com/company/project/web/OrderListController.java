@@ -1,29 +1,21 @@
 package com.company.project.web;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
-import com.company.project.model.Order;
-import com.company.project.model.User;
+import com.company.project.model.Orderlist;
 import com.company.project.service.ItemService;
 import com.company.project.service.OrderService;
-import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.sql.Struct;
-import java.sql.Time;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -31,7 +23,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/order")
-public class OrderController {
+public class OrderListController {
     @Resource
     private OrderService orderService;
     @Resource
@@ -51,8 +43,8 @@ public class OrderController {
     }
 
     @PostMapping("/add")
-    public Result add(Order order) {
-        orderService.save(order);
+    public Result add(Orderlist orderList) {
+        orderService.save(orderList);
         return ResultGenerator.genSuccessResult();
     }
 
@@ -63,21 +55,21 @@ public class OrderController {
     }
 
     @PostMapping("/update")
-    public Result update(Order order) {
-        orderService.update(order);
+    public Result update(Orderlist orderList) {
+        orderService.update(orderList);
         return ResultGenerator.genSuccessResult();
     }
 
     @GetMapping("/detail")
     public Result detail(@RequestParam String id) {
-        Order order = orderService.findById(id);
-        return ResultGenerator.genSuccessResult(order);
+        Orderlist orderList = orderService.findById(id);
+        return ResultGenerator.genSuccessResult(orderList);
     }
 
     @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        List<Order> list = orderService.findAll();
+        List<Orderlist> list = orderService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
@@ -102,19 +94,20 @@ public class OrderController {
 
 
         Date time = new Date();
-        Order order = new Order();
-        order.setUuid(UUID.randomUUID().toString());
-        order.setItems(itemNumbers.toString());
+        Orderlist orderList = new Orderlist();
+//        order.setUuid(UUID.randomUUID().toString());
+        orderList.setUuid("UUID");
+        orderList.setItems(itemNumbers.toString());
         System.out.println(itemNumbers.toString());
-        order.setBuyer(itemNumbers.get(0).buyer);
-        order.setDelivery("暂无数据");
-        order.setPrice(getTotalPrice(itemNumbers));
-        order.setSeller(sellers );
-        order.setTime(time);
-        order.setPaid(true);
-        order.setFinish(false);
+        orderList.setBuyer(itemNumbers.get(0).buyer);
+        orderList.setDelivery("暂无数据");
+        orderList.setPrice(getTotalPrice(itemNumbers));
+        orderList.setSeller(sellers);
+        orderList.setTime(time);
+        orderList.setPaid(true);
+        orderList.setFinish(false);
         try {
-            orderService.save(order);
+            orderService.save(orderList);
         } catch (Exception e) {
             e.printStackTrace();
             return ResultGenerator.genFailResult("failed");
@@ -125,17 +118,17 @@ public class OrderController {
     @CrossOrigin
     @PostMapping("/setBill")
     public Result setBill(@RequestParam String orderUUID, String billUUID) {
-        Order order = orderService.findById(orderUUID);
-        order.setBill(billUUID);
-        order.setPaid(true);
+        Orderlist orderList = orderService.findById(orderUUID);
+        orderList.setBill(billUUID);
+        orderList.setPaid(true);
         return ResultGenerator.genSuccessResult("success");
     }
 
     @CrossOrigin
     @PostMapping("/setFinish")
     public Result setFinish(@RequestParam String orderUUID) {
-        Order order = orderService.findById(orderUUID);
-        order.setFinish(true);
+        Orderlist orderList = orderService.findById(orderUUID);
+        orderList.setFinish(true);
         return ResultGenerator.genSuccessResult("success");
     }
 
@@ -146,7 +139,7 @@ public class OrderController {
         Condition condition = new Condition(Item.class);
         Example.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo("buyer", buyer);
-        List<Order> list = orderService.findByCondition(condition);
+        List<Orderlist> list = orderService.findByCondition(condition);
         int length = list.size();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
