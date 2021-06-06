@@ -19,14 +19,12 @@ import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.sql.Struct;
 import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by CodeGenerator on 2021/04/21.
@@ -36,14 +34,20 @@ import java.util.Map;
 public class OrderController {
     @Resource
     private OrderService orderService;
+    @Resource
     private ItemService itemService;
 
-    private class ItemNumber {
+    private class ItemNumber implements Serializable {
         String itemUUID;
         Integer number;
         String owner;
         String buyer;
         double price;
+
+        @Override
+        public String toString(){
+            return "itemUUID="+itemUUID+",number="+number;
+        }
     }
 
     @PostMapping("/add")
@@ -81,36 +85,40 @@ public class OrderController {
     @CrossOrigin
     @PostMapping("/createOrder")
     public Result createOrder(@RequestParam String orderlist) {
-//    public Result createOrder(@RequestBody ArrayList<String> params) {
+        List<ItemNumber> itemNumbers = new ArrayList<>();
+        String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
-        System.out.println(json.get(1));
-        /*List<ItemNumber> items=null;
-        for(String itemData:itemDatas){
-            JSONArray jsonArray = JSONObject.parseArray(itemData);
-            JSONObject jsonObject=(JSONObject) jsonArray.get(0);
-            Map<String,Object> map = jsonObject.getInnerMap();
-            map.get("itemUUID");
-
+        for (int i = 0; i < json.size(); i++) {
+            JSONObject jsonObject = json.getJSONObject(i);
+            ItemNumber itemNumber = new ItemNumber();
+            itemNumber.itemUUID = jsonObject.get("itemUUID").toString();
+            itemNumber.number = Integer.parseInt(jsonObject.get("number").toString());
+            itemNumber.owner = jsonObject.get("owner").toString();
+            itemNumber.buyer = jsonObject.get("buyer").toString();
+            itemNumber.price = itemService.findById(itemNumber.itemUUID).getPrice();
+            sellers+=itemNumber.owner+",";
+            itemNumbers.add(itemNumber);
         }
-        List<String> sellers=null;
+
+
         Date time = new Date();
-
         Order order = new Order();
-        order.setItems(JSON.toJSONString(items));
-        for(ItemNumber item :items){
-            sellers.add(item.owner);
-            item.price=itemService.findById(item.itemUUID).getPrice();
-        }
-        order.setBuyer(items.get(0).buyer);
+        order.setUuid(UUID.randomUUID().toString());
+        order.setItems(itemNumbers.toString());
+        System.out.println(itemNumbers.toString());
+        order.setBuyer(itemNumbers.get(0).buyer);
         order.setDelivery("暂无数据");
+        order.setPrice(getTotalPrice(itemNumbers));
+        order.setSeller(sellers );
         order.setTime(time);
         order.setPaid(true);
         order.setFinish(false);
         try {
             orderService.save(order);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResultGenerator.genFailResult("failed");
-        }*/
+        }
         return ResultGenerator.genSuccessResult("success");
     }
 
