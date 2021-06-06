@@ -76,6 +76,7 @@ public class WishlistController {
         if(tryUUID==null){
             return ResultGenerator.genFailResult("Not logged in");
         }
+        auth=new Auth(stringRedisTemplate);
         String ownerUUID =auth.getSession(tryUUID);
         if(ownerUUID==null){
             return ResultGenerator.genFailResult("redis中没有存相应的uuid");
@@ -104,10 +105,9 @@ public class WishlistController {
             for(int i=0;i<jsonArray.size();i++){
                 JSONObject jsonObject= (JSONObject) jsonArray.get(i);
                 Map<String,Object> curMap=jsonObject.getInnerMap();
-                if(((String)(curMap.get("id"))).equals(ownerUUID)){
+                if(((String)(curMap.get("id"))).equals(itemUUID)){
                     hasItem=true;
-                    Integer oldNum= (Integer) curMap.get("num");
-                    Integer newNum=oldNum+addNum;
+                    Integer newNum=addNum;
                     curMap.put("num",newNum);
                 }
                 list.add(curMap);
@@ -128,7 +128,7 @@ public class WishlistController {
     需要传入的参数，删除的是什么，删除的数量
      */
     @PostMapping("removeWishlist")
-    public Result removeWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
+    public Result removeWishlist(@RequestParam(value = "wishlist",required = true) String wishlist ,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
         HttpSession httpSession=null;
         httpSession=request.getSession();
         if(httpSession==null){
@@ -142,11 +142,17 @@ public class WishlistController {
         if(ownerUUID==null){
             return ResultGenerator.genFailResult("redis中没有存相应的uuid");
         }
+        ArrayList<String> removeItems=new ArrayList<>();
+        JSONArray tempjsonArray1=JSONObject.parseArray(wishlist);
+        for(int i=0;i<tempjsonArray1.size();i++){
+            JSONObject jsonObject= (JSONObject) tempjsonArray1.get(i);
+            Map<String,Object> map=jsonObject.getInnerMap();
+            String removeItem= (String) map.get("uuid");
+            removeItems.add(removeItem);
+        }
         Wishlist findwishlist=null;
         findwishlist=wishlistService.findBy("owner",ownerUUID);
-        int minNum=Integer.parseInt(number);
-        boolean hasItem=false;
-        boolean success=true;
+        boolean hasRemove=false;
         if(findwishlist==null){
             return ResultGenerator.genFailResult("没有相应的数据");
         }
@@ -157,32 +163,21 @@ public class WishlistController {
             for(int i=0;i<jsonArray.size();i++){
                 JSONObject jsonObject= (JSONObject) jsonArray.get(i);
                 Map<String,Object> curMap=jsonObject.getInnerMap();
-                if(((String)(curMap.get("id"))).equals(ownerUUID)){
-                    hasItem=true;
-                    Integer oldNum= (Integer) curMap.get("num");
-                    if(oldNum>=minNum) {
-                        Integer newNum = oldNum - minNum;
-                        curMap.put("num", newNum);
-                    }
-                    else {
-                        success=false;
-                    }
+                if(removeItems.contains((String)(curMap.get("id")))){
+                    hasRemove=true;
                 }
-                list.add(curMap);
+                else {
+                    list.add(curMap);
+                }
             }
-
+            if(!hasRemove){
+                return ResultGenerator.genFailResult("没有能从购物车移除");
+            }
             String result=JSONObject.toJSONString(list);
             findwishlist.setItems(result);
             wishlistService.update(findwishlist);
-
         }
-        if(!hasItem||!success){
-            return  ResultGenerator.genFailResult("不存在Item或者数据不足");
-        }
-        else {
             return ResultGenerator.genSuccessResult("成功插入");
-        }
-
     }
 
     @GetMapping("listItem")
