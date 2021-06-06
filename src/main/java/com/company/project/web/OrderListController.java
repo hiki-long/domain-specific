@@ -95,10 +95,8 @@ public class OrderListController {
 
         Date time = new Date();
         Orderlist orderList = new Orderlist();
-//        order.setUuid(UUID.randomUUID().toString());
-        orderList.setUuid("UUID");
+        orderList.setUuid(UUID.randomUUID().toString());
         orderList.setItems(itemNumbers.toString());
-        System.out.println(itemNumbers.toString());
         orderList.setBuyer(itemNumbers.get(0).buyer);
         orderList.setDelivery("暂无数据");
         orderList.setPrice(getTotalPrice(itemNumbers));
