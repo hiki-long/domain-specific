@@ -6,7 +6,7 @@
           WARNING - @mbg.generated
         -->
         <id column="uuid" jdbcType="VARCHAR" property="uuid"/>
-        <result column="order" jdbcType="VARCHAR" property="order"/>
+        <result column="orderList" jdbcType="VARCHAR" property="orderList"/>
         <result column="price" jdbcType="REAL" property="price"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="payment" jdbcType="VARCHAR" property="payment"/>
