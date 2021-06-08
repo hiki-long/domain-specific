@@ -131,6 +131,7 @@ public class WishlistController {
     public Result removeWishlist(@RequestParam(value = "wishlist",required = true) String wishlist ,HttpServletRequest request) throws Exception {
         HttpSession httpSession=null;
         httpSession=request.getSession();
+        auth=new Auth(stringRedisTemplate);
         if(httpSession==null){
             return ResultGenerator.genFailResult("连接断开了");
         }
