@@ -2,6 +2,7 @@ package com.company.project.web;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
@@ -15,6 +16,8 @@ import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.*;
 
@@ -29,11 +32,12 @@ public class OrderListController {
     @Resource
     private ItemService itemService;
 
+    private Auth auth;
+
     private class ItemNumber implements Serializable {
         String itemUUID;
         Integer number;
         String owner;
-        String buyer;
         double price;
 
         @Override
@@ -76,28 +80,28 @@ public class OrderListController {
 
     @CrossOrigin
     @PostMapping("/createOrder")
-    public Result createOrder(@RequestParam String orderlist) {
+    public Result createOrder(@RequestParam String orderlist,HttpServletRequest request) throws Exception {
         List<ItemNumber> itemNumbers = new ArrayList<>();
         String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
+        HttpSession session=request.getSession();
+        String redisuuid=(String)session.getAttribute("uuid");
         for (int i = 0; i < json.size(); i++) {
             JSONObject jsonObject = json.getJSONObject(i);
             ItemNumber itemNumber = new ItemNumber();
             itemNumber.itemUUID = jsonObject.get("itemUUID").toString();
             itemNumber.number = Integer.parseInt(jsonObject.get("number").toString());
             itemNumber.owner = jsonObject.get("owner").toString();
-            itemNumber.buyer = jsonObject.get("buyer").toString();
             itemNumber.price = itemService.findById(itemNumber.itemUUID).getPrice();
             sellers+=itemNumber.owner+",";
             itemNumbers.add(itemNumber);
         }
 
-
         Date time = new Date();
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
         orderList.setItems(itemNumbers.toString());
-        orderList.setBuyer(itemNumbers.get(0).buyer);
+        orderList.setBuyer(auth.getSession(redisuuid));
         orderList.setDelivery("暂无数据");
         orderList.setPrice(getTotalPrice(itemNumbers));
         orderList.setSeller(sellers);
