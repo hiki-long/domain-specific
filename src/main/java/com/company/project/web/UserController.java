@@ -146,19 +146,21 @@ public class UserController {
 
     }
     /*
-    模块：修改密码（登录后状态，需要和忘记密码的修改密码做出区分）
-    传入参数:email、passwd、newpasswd
-    返回信息：旧密码错误（失败）、修改成功（成功）、发生错误（没有找到对应邮箱的用户，但一般不会发生这种错误，因为已经登录）
+    模块：修改密码（登录后状态，需要和忘记密码的修改密码做出区分，同时需要注意，只能修改当前账号的密码）
+    传入参数:passwd、newpasswd
+    返回信息：旧密码错误（失败）、修改成功（成功）
     注意：密码的格式需要在前台进行筛选
      */
-
     @PostMapping("/changePasswd")
     public Result changePasswd(@RequestParam Map<String,String> params,HttpServletRequest request){
-            String email = params.get("email");
             String passwd = params.get("passwd");
             String newpasswd = params.get("newpasswd");
+            String userUUID=getUserSession(request);
+            if(userUUID==null){
+                return ResultGenerator.genFailResult("无法从session中获取相应的数据");
+            }
             User findUser = null;
-            if ((findUser = userService.findBy("email", email)) != null) {
+            if ((findUser = userService.findBy("uuid", userUUID)) != null) {
                 if (BCrypt.verifyer().verify(passwd.toCharArray(), findUser.getPasswd().toCharArray()).verified) {
                     findUser.setPasswd(BCrypt.withDefaults().hashToString(12, newpasswd.toCharArray()));
                     userService.updateUserPasswd(findUser);
@@ -173,15 +175,19 @@ public class UserController {
     }
     /*
     模块：修改用户名
-    传入参数:email、username
+    传入参数:username
     返回信息：成功修改、找不到用户
      */
     @PostMapping("/changeUsername")
     public Result changeUsername(@RequestParam Map<String,String> param,HttpServletRequest request){
-        String email=param.get("email");
+
         String username=param.get("username");
+        String userUUID=getUserSession(request);
+        if(userUUID==null){
+            return ResultGenerator.genFailResult("无法从session中获取相应的数据");
+        }
         User findUser=null;
-        if((findUser=userService.findBy("email",email))!=null){
+        if((findUser=userService.findBy("uuid",userUUID))!=null){
             findUser.setUsername(username);
             userService.updateUserUsername(findUser);
             return ResultGenerator.genSuccessResult("success");
@@ -242,7 +248,6 @@ public class UserController {
     /*
     用于上传头像,
      */
-    @CrossOrigin(allowCredentials = "true")
     @PostMapping("/uploadAvatar")
     public Result uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws Exception{
         if(file.isEmpty()){
@@ -272,30 +277,19 @@ public class UserController {
         }
 
         User findUser=null;
-        HttpSession session=null;
-        String uuid=null;
-        String redisuuid=null;
-        session=request.getSession();
-        if(session!=null){//连接无误
-            redisuuid=(String)session.getAttribute("uuid");
-            if(redisuuid!=null){//redis中存在相应的登录信息
-                uuid=auth.getSession(redisuuid);
-                if(uuid!=null) {
-                    findUser = userService.findBy("uuid", uuid);
-                    if (findUser != null) {//是否找到对应的用户
-                        findUser.setAvatar(avatarUri);
-                        userService.update(findUser);
-                        return ResultGenerator.genSuccessResult("成功更新头像");
-                    }
-                    return ResultGenerator.genFailResult("没有找到对应的对象");
-                }
-                return ResultGenerator.genFailResult("redis中没有相应的登录信息");
-            }
-            return ResultGenerator.genFailResult("没有正确的登录信息");
+        String uuid=getUserSession(request);
+        if(uuid==null){
+            return ResultGenerator.genFailResult("无法从session中获取相应的数据");
         }
-        return ResultGenerator.genFailResult("没有正确的进行连接");
-    }
+        findUser = userService.findBy("uuid", uuid);
+        if (findUser != null) {//是否找到对应的用户
+            findUser.setAvatar(avatarUri);
+            userService.update(findUser);
+            return ResultGenerator.genSuccessResult("成功更新头像");
+        }
+        return ResultGenerator.genFailResult("没有找到对应的对象");
 
+    }
     /*
     获取相应的图片
      */
@@ -334,9 +328,6 @@ public class UserController {
 
 
     }
-
-
-
     @PostMapping("/test")
     public Result functest(@RequestParam Map<String, String> params, HttpServletRequest request) throws Exception {
         String data = params.get("data");
@@ -353,6 +344,7 @@ public class UserController {
         session=request.getSession();
         String redisuuid=null;
         String uuid=null;
+        auth=new Auth(stringRedisTemplate);
         if(session!=null){
             redisuuid=(String)session.getAttribute("uuid");
             if(redisuuid!=null){
