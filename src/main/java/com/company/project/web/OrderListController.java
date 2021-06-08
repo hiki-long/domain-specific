@@ -11,6 +11,7 @@ import com.company.project.service.ItemService;
 import com.company.project.service.OrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
@@ -64,12 +65,14 @@ public class OrderListController {
         return ResultGenerator.genSuccessResult();
     }
 
+    @CrossOrigin
     @GetMapping("/detail")
     public Result detail(@RequestParam String id) {
         Orderlist orderList = orderService.findById(id);
         return ResultGenerator.genSuccessResult(orderList);
     }
 
+    @CrossOrigin
     @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
@@ -114,7 +117,7 @@ public class OrderListController {
             e.printStackTrace();
             return ResultGenerator.genFailResult("failed");
         }
-        return ResultGenerator.genSuccessResult("success");
+        return ResultGenerator.genSuccessResult(orderList.getUuid());
     }
 
     @CrossOrigin
@@ -134,15 +137,17 @@ public class OrderListController {
         return ResultGenerator.genSuccessResult("success");
     }
 
+
     @CrossOrigin
-    @GetMapping("/listOrderByUUID")
-    public Result listOrderByUUID(@RequestParam String buyer, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
+    @GetMapping("/listOrderByUser")
+    public Result listOrderByUser(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) throws Exception {
         PageHelper.startPage(page, size);
+        HttpSession session=request.getSession();
+        String redisuuid=(String)session.getAttribute("uuid");
         Condition condition = new Condition(Item.class);
         Example.Criteria criteria = condition.createCriteria();
-        criteria.andEqualTo("buyer", buyer);
+        criteria.andEqualTo("uuid", auth.getSession(redisuuid));
         List<Orderlist> list = orderService.findByCondition(condition);
-        int length = list.size();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
