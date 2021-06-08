@@ -128,7 +128,7 @@ public class WishlistController {
     需要传入的参数，删除的是什么，删除的数量
      */
     @PostMapping("removeWishlist")
-    public Result removeWishlist(@RequestParam(value = "wishlist",required = true) String wishlist ,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
+    public Result removeWishlist(@RequestParam(value = "wishlist",required = true) String wishlist ,HttpServletRequest request) throws Exception {
         HttpSession httpSession=null;
         httpSession=request.getSession();
         if(httpSession==null){
