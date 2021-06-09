@@ -87,8 +87,8 @@ public class OrderListController {
         List<ItemNumber> itemNumbers = new ArrayList<>();
         String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
-        HttpSession session=request.getSession();
-        String redisuuid=(String)session.getAttribute("uuid");
+//        HttpSession session=request.getSession();
+//        String redisuuid=(String)session.getAttribute("uuid");
         for (int i = 0; i < json.size(); i++) {
             JSONObject jsonObject = json.getJSONObject(i);
             ItemNumber itemNumber = new ItemNumber();
@@ -104,7 +104,8 @@ public class OrderListController {
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
         orderList.setItems(itemNumbers.toString());
-        orderList.setBuyer(auth.getSession(redisuuid));
+//        orderList.setBuyer(auth.getSession(redisuuid));
+        orderList.setBuyer("");
         orderList.setDelivery("暂无数据");
         orderList.setPrice(getTotalPrice(itemNumbers));
         orderList.setSeller(sellers);
@@ -117,7 +118,7 @@ public class OrderListController {
             e.printStackTrace();
             return ResultGenerator.genFailResult("failed");
         }
-        return ResultGenerator.genSuccessResult(orderList.getUuid());
+        return ResultGenerator.genSuccessResult(orderList.getUuid()+","+orderList.getPrice());
     }
 
     @CrossOrigin
