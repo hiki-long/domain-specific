@@ -145,7 +145,7 @@ public class OrderListController {
         PageHelper.startPage(page, size);
         HttpSession session=request.getSession();
         String redisuuid=(String)session.getAttribute("uuid");
-        Condition condition = new Condition(Item.class);
+        Condition condition = new Condition(Orderlist.class);
         Example.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo("uuid", auth.getSession(redisuuid));
         List<Orderlist> list = orderService.findByCondition(condition);

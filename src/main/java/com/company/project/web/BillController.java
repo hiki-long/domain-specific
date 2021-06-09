@@ -4,12 +4,14 @@ import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Bill;
 import com.company.project.service.BillService;
+import com.company.project.service.OrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by CodeGenerator on 2021/04/21.
@@ -19,6 +21,8 @@ import java.util.List;
 public class BillController {
     @Resource
     private BillService billService;
+    @Resource
+    private OrderService orderService;
 
     @PostMapping("/add")
     public Result add(Bill bill) {
@@ -50,5 +54,21 @@ public class BillController {
         List<Bill> list = billService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
+    }
+
+    @CrossOrigin
+    @PostMapping("/createBill")
+    public Result createBill(@RequestParam String uuid){
+        Bill bill=new Bill();
+        bill.setUuid(UUID.randomUUID().toString());
+        bill.setPrice(orderService.findById(uuid).getPrice());
+        bill.setType("wechat");
+        bill.setPayment(UUID.randomUUID().toString());
+        try{
+            billService.save(bill);
+        }catch(Exception e){
+            return ResultGenerator.genFailResult("Failed");
+        }
+        return ResultGenerator.genSuccessResult(bill.getUuid());
     }
 }
