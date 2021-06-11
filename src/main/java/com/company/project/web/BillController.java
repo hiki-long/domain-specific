@@ -61,6 +61,7 @@ public class BillController {
     public Result createBill(@RequestParam String uuid){
         Bill bill=new Bill();
         bill.setUuid(UUID.randomUUID().toString());
+        bill.setOrder(uuid);
         bill.setPrice(orderService.findById(uuid).getPrice());
         bill.setType("wechat");
         bill.setPayment(UUID.randomUUID().toString());

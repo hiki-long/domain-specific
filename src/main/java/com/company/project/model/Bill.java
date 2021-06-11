@@ -6,7 +6,7 @@ public class Bill {
     @Id
     private String uuid;
 
-    private String order;
+    private String orderuuid;
 
     private Float price;
 
@@ -32,14 +32,14 @@ public class Bill {
      * @return order
      */
     public String getOrder() {
-        return order;
+        return orderuuid;
     }
 
     /**
-     * @param order
+     * @param orderuuid
      */
-    public void setOrder(String order) {
-        this.order = order;
+    public void setOrder(String orderuuid) {
+        this.orderuuid = orderuuid;
     }
 
     /**
