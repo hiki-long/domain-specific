@@ -155,7 +155,7 @@ public class WishlistController {
             findwishlist.setItems(result);
             wishlistService.update(findwishlist);
         }
-            return ResultGenerator.genSuccessResult("成功插入");
+            return ResultGenerator.genSuccessResult("成功删除");
     }
 
     @GetMapping("listItem")
