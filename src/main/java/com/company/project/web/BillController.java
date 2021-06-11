@@ -1,15 +1,23 @@
 package com.company.project.web;
 
+import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Bill;
+import com.company.project.model.Orderlist;
 import com.company.project.service.BillService;
 import com.company.project.service.OrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import tk.mybatis.mapper.entity.Condition;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +31,9 @@ public class BillController {
     private BillService billService;
     @Resource
     private OrderService orderService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    private Auth auth;
 
     @PostMapping("/add")
     public Result add(Bill bill) {
@@ -58,7 +69,7 @@ public class BillController {
 
     @CrossOrigin
     @PostMapping("/createBill")
-    public Result createBill(@RequestParam String uuid){
+    public Result createBill(@RequestParam String uuid,HttpServletRequest request){
         Bill bill=new Bill();
         bill.setUuid(UUID.randomUUID().toString());
         bill.setOrder(uuid);
@@ -72,4 +83,5 @@ public class BillController {
         }
         return ResultGenerator.genSuccessResult(bill.getUuid());
     }
+
 }

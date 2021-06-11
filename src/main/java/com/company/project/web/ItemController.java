@@ -123,7 +123,7 @@ public class ItemController {
     }
     @CrossOrigin
     @GetMapping("/listAll")
-    public Result listOwnerItem(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
+    public Result listAllItem(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
         Condition condition = new Condition(Item.class);
         Example.Criteria criteria = condition.createCriteria();
