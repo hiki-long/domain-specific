@@ -11,6 +11,8 @@ import com.company.project.service.ItemService;
 import com.company.project.service.OrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Condition;
@@ -32,8 +34,10 @@ public class OrderListController {
     private OrderService orderService;
     @Resource
     private ItemService itemService;
-
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     private Auth auth;
+
 
     private class ItemNumber implements Serializable {
         String itemUUID;
@@ -99,7 +103,7 @@ public class OrderListController {
             sellers+=itemNumber.owner+",";
             itemNumbers.add(itemNumber);
         }
-
+        auth=new Auth(stringRedisTemplate);
         Date time = new Date();
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
@@ -143,6 +147,7 @@ public class OrderListController {
     @GetMapping("/listOrderByUser")
     public Result listOrderByUser(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) throws Exception {
         PageHelper.startPage(page, size);
+        auth=new Auth(stringRedisTemplate);
         HttpSession session=request.getSession();
         String redisuuid=(String)session.getAttribute("uuid");
         Condition condition = new Condition(Orderlist.class);

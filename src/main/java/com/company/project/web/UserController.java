@@ -107,6 +107,7 @@ public class UserController {
 
          HttpSession session=null;//先判断是否已经登录
          session=request.getSession();
+         auth=new Auth(stringRedisTemplate);
          if(session!=null){
              String tryUUID= (String) session.getAttribute("uuid");
              if(tryUUID!=null){
@@ -118,7 +119,6 @@ public class UserController {
          else {
              return ResultGenerator.genFailResult("连接失败");
          }
-         auth=new Auth(stringRedisTemplate);
         String email=params.get("email");
         String passwd=params.get("passwd");
         User findUser=null;
@@ -253,14 +253,6 @@ public class UserController {
         if(file.isEmpty()){
             return ResultGenerator.genFailResult("上传失败,请选择文件");
         }
-//        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-//        response.setHeader("Access-Control-Allow-Credentials", "true");
-//        response.setHeader("P3P", "CP=CAO PSA OUR");
-//        if (request.getHeader("Access-Control-Request-Method") != null && "OPTIONS".equals(request.getMethod())) {
-//            response.addHeader("Access-Control-Allow-Methods", "POST,GET,TRACE,OPTIONS");
-//            response.addHeader("Access-Control-Allow-Headers", "Content-Type,Origin,Accept");
-//            response.addHeader("Access-Control-Max-Age", "120");
-//        }
         String fileName = file.getOriginalFilename();
         int idx=fileName.lastIndexOf(".");
         String extention=fileName.substring(idx);
