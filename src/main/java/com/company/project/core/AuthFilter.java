@@ -19,7 +19,7 @@ public class AuthFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         System.out.println("filter init");
-        auth = new Auth(stringRedisTemplate);
+        auth = Auth.getInstance(stringRedisTemplate);
     }
 
     @Override

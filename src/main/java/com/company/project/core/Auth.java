@@ -12,12 +12,33 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringRunner.class)
 @Component
 public class Auth {
-    private StringRedisTemplate stringRedisTemplate;
 
-    public Auth(StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
+    private static StringRedisTemplate stringRedisTemplate;
+    private volatile static Auth auth;
+    public static Auth getInstance(StringRedisTemplate stringRedisTemplate){
+        if(Auth.stringRedisTemplate!=null){
+            return auth;
+        }
+        if(auth==null){
+            synchronized (Auth.class){
+                if(auth==null){
+                    auth=new Auth(stringRedisTemplate);
+                }
+            }
+        }
+        return auth;
     }
-
+    public static Auth getInstance(){
+        if(Auth.stringRedisTemplate!=null){
+            return auth;
+        }
+        else {
+            return null;
+        }
+    }
+    private Auth(StringRedisTemplate stringRedisTemplate){
+        Auth.stringRedisTemplate=stringRedisTemplate;
+    }
     public String setSession(String uuid) throws Exception {
         String keyid = UUID.randomUUID().toString();
         stringRedisTemplate.opsForValue().set(keyid,uuid);

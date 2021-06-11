@@ -34,8 +34,6 @@ public class OrderListController {
     private OrderService orderService;
     @Resource
     private ItemService itemService;
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
     private Auth auth;
 
 
@@ -91,8 +89,7 @@ public class OrderListController {
         List<ItemNumber> itemNumbers = new ArrayList<>();
         String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
-        HttpSession session=request.getSession();
-        String redisuuid=(String)session.getAttribute("uuid");
+        String userUUID=getUserSession(request);
         for (int i = 0; i < json.size(); i++) {
             JSONObject jsonObject = json.getJSONObject(i);
             ItemNumber itemNumber = new ItemNumber();
@@ -103,12 +100,11 @@ public class OrderListController {
             sellers+=itemNumber.owner+",";
             itemNumbers.add(itemNumber);
         }
-        auth=new Auth(stringRedisTemplate);
         Date time = new Date();
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
         orderList.setItems(itemNumbers.toString());
-        orderList.setBuyer(auth.getSession(redisuuid));
+        orderList.setBuyer(userUUID);
         orderList.setBuyer("");
         orderList.setDelivery("暂无数据");
         orderList.setPrice(getTotalPrice(itemNumbers));
@@ -147,12 +143,10 @@ public class OrderListController {
     @GetMapping("/listOrderByUser")
     public Result listOrderByUser(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) throws Exception {
         PageHelper.startPage(page, size);
-        auth=new Auth(stringRedisTemplate);
-        HttpSession session=request.getSession();
-        String redisuuid=(String)session.getAttribute("uuid");
+        String userUUID=getUserSession(request);
         Condition condition = new Condition(Orderlist.class);
         Example.Criteria criteria = condition.createCriteria();
-        criteria.andEqualTo("uuid", auth.getSession(redisuuid));
+        criteria.andEqualTo("uuid", userUUID);
 //        criteria.andEqualTo("buyer", "408b1cfb-ce0f-4f41-b773-e916378e35f5");
         List<Orderlist> list = orderService.findByCondition(condition);
         PageInfo pageInfo = new PageInfo(list);
@@ -165,6 +159,31 @@ public class OrderListController {
             res += i.number * i.price;
         }
         return res;
+    }
+    private String getUserSession(HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        String redisuuid=null;
+        String uuid=null;
+        auth=Auth.getInstance();
+        if(auth==null){
+            return null;
+        }
+        if(session!=null){
+            redisuuid=(String)session.getAttribute("uuid");
+            if(redisuuid!=null){
+                try {
+                    uuid=auth.getSession(redisuuid);
+                    if(uuid!=null){
+                        return uuid;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+
     }
 
 }

@@ -29,9 +29,6 @@ import java.util.Map;
 public class WishlistController {
     @Resource
     private WishlistService wishlistService;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
     private Auth auth;
 
     @PostMapping("/add")
@@ -67,27 +64,17 @@ public class WishlistController {
     }
     @PostMapping("/addWishlist")
     public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
-        HttpSession httpSession=null;
-        httpSession=request.getSession();
-        if(httpSession==null){
-            return ResultGenerator.genFailResult("连接断开了");
-        }
-        String tryUUID=(String)httpSession.getAttribute("uuid");
-        if(tryUUID==null){
-            return ResultGenerator.genFailResult("Not logged in");
-        }
-        auth=new Auth(stringRedisTemplate);
-        String ownerUUID =auth.getSession(tryUUID);
-        if(ownerUUID==null){
-            return ResultGenerator.genFailResult("redis中没有存相应的uuid");
+        String userUUID=getUserSession(request);
+        if(userUUID==null){
+            return ResultGenerator.genFailResult("没有找到相应的登录数据");
         }
         Wishlist findwishlist=null;
-        findwishlist=wishlistService.findBy("owner",ownerUUID);
+        findwishlist=wishlistService.findBy("owner",userUUID);
         int addNum=Integer.parseInt(number);
         String newItems=null;
         if(findwishlist==null) {//当购物车中没有响应的数据
             Wishlist wishlist = new Wishlist();
-            wishlist.setOwner(ownerUUID);
+            wishlist.setOwner(userUUID);
             Map<String,Object> map= new HashMap<>();
             map.put("num",addNum);
             map.put("id",itemUUID);
@@ -129,19 +116,9 @@ public class WishlistController {
      */
     @PostMapping("removeWishlist")
     public Result removeWishlist(@RequestParam(value = "wishlist",required = true) String wishlist ,HttpServletRequest request) throws Exception {
-        HttpSession httpSession=null;
-        httpSession=request.getSession();
-        auth=new Auth(stringRedisTemplate);
-        if(httpSession==null){
-            return ResultGenerator.genFailResult("连接断开了");
-        }
-        String tryUUID=(String)httpSession.getAttribute("uuid");
-        if(tryUUID==null){
-            return ResultGenerator.genFailResult("Not logged in");
-        }
-        String ownerUUID =auth.getSession(tryUUID);
-        if(ownerUUID==null){
-            return ResultGenerator.genFailResult("redis中没有存相应的uuid");
+        String userUUID=getUserSession(request);
+        if(userUUID==null){
+            return ResultGenerator.genFailResult("没有找到相应的登录数据");
         }
         ArrayList<String> removeItems=new ArrayList<>();
         JSONArray tempjsonArray1=JSONObject.parseArray(wishlist);
@@ -152,7 +129,7 @@ public class WishlistController {
             removeItems.add(removeItem);
         }
         Wishlist findwishlist=null;
-        findwishlist=wishlistService.findBy("owner",ownerUUID);
+        findwishlist=wishlistService.findBy("owner",userUUID);
         boolean hasRemove=false;
         if(findwishlist==null){
             return ResultGenerator.genFailResult("没有相应的数据");
@@ -183,15 +160,39 @@ public class WishlistController {
 
     @GetMapping("listItem")
     public Result listItem(HttpServletRequest request) throws Exception {
-        HttpSession session = request.getSession(false);
-        Auth auth = new Auth(stringRedisTemplate);
-        String keyUUID=null;
-        keyUUID= (String) session.getAttribute("uuid");
-        String userUUID=null;
-        userUUID=auth.getSession(keyUUID);
-        Wishlist wishlist =wishlistService.findBy("owner",auth.getSession((String) session.getAttribute("uuid")));
+        String userUUID=getUserSession(request);
+        if(userUUID==null){
+            return ResultGenerator.genFailResult("没有找到相应的登录数据");
+        }
+        Wishlist wishlist =wishlistService.findBy("owner",userUUID);
         //JSONArray json = JSONObject.parseArray(wishlist.getItems());
         return ResultGenerator.genSuccessResult(wishlist.getItems());
+    }
+
+    private String getUserSession(HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        String redisuuid=null;
+        String uuid=null;
+        auth=Auth.getInstance();
+        if(auth==null){
+            return null;
+        }
+        if(session!=null){
+            redisuuid=(String)session.getAttribute("uuid");
+            if(redisuuid!=null){
+                try {
+                    uuid=auth.getSession(redisuuid);
+                    if(uuid!=null){
+                        return uuid;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+
     }
 }
 

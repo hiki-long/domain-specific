@@ -46,6 +46,8 @@ public class UserController {
     private StringRedisTemplate stringRedisTemplate;
 
 
+
+
     @PostMapping("/add")
     public Result add(User user) {
         userService.save(user);
@@ -107,12 +109,12 @@ public class UserController {
 
          HttpSession session=null;//先判断是否已经登录
          session=request.getSession();
-         auth=new Auth(stringRedisTemplate);
+         auth=Auth.getInstance(stringRedisTemplate);
          if(session!=null){
              String tryUUID= (String) session.getAttribute("uuid");
              if(tryUUID!=null){
                  if(auth.hasSession(tryUUID)){
-                     return ResultGenerator.genFailResult("已经登录了");
+                     return ResultGenerator.genSuccessResult("已经登录了");
                  }
              }
          }
@@ -336,7 +338,7 @@ public class UserController {
         session=request.getSession();
         String redisuuid=null;
         String uuid=null;
-        auth=new Auth(stringRedisTemplate);
+        auth=Auth.getInstance(stringRedisTemplate);
         if(session!=null){
             redisuuid=(String)session.getAttribute("uuid");
             if(redisuuid!=null){
