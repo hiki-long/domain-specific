@@ -127,7 +127,7 @@ public class OrderListController {
 
     @CrossOrigin
     @PostMapping("/setBill")
-    public Result setBill(@RequestParam String orderUUID, String billUUID) {
+    public Result setBill(@RequestParam String orderUUID, @RequestParam String billUUID) {
         Orderlist orderList = orderService.findById(orderUUID);
         orderList.setBill(billUUID);
         orderList.setPaid(true);
