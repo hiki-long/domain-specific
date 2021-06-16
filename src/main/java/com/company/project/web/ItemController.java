@@ -6,15 +6,22 @@ import com.alibaba.fastjson.JSONPObject;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
+import com.company.project.model.User;
 import com.company.project.service.ItemService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -173,4 +180,65 @@ public class ItemController {
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
+
+    /*
+    将商品的url传给前端
+     */
+    @PostMapping("/storePicture")
+    public Result storePicture(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response){
+        if(file.isEmpty()){
+            return ResultGenerator.genFailResult("上传失败,请选择文件");
+        }
+        String fileName = file.getOriginalFilename();
+        int idx=fileName.lastIndexOf(".");
+        String extention=fileName.substring(idx);
+        String uuidFileName=UUID.randomUUID().toString().replace("-","")+extention;
+        String filePath = System.getProperty("user.dir")+"/picture/avatar/";
+        String avatarUri =filePath+uuidFileName;
+        File dest=new File(avatarUri);
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResultGenerator.genSuccessResult(avatarUri);
+
+    }
+    /*
+   记得url存进数据库
+     */
+    /*
+    获取相应的图片
+     */
+//    @PostMapping(value = "getAvatar",produces = MediaType.IMAGE_PNG_VALUE)
+//    public void getAvatar(@RequestParam String item HttpServletRequest request){//记得改返回值
+//
+//        String pictureUrl=null;
+//        FileInputStream picInput=null;
+//                //把下面的findUser换成获得相应的商品，方法为getImage
+//                //pictureUrl=findUser.getAvatar();//
+//                if(pictureUrl!=null){
+//                    try {
+//                        picInput=new FileInputStream(pictureUrl);
+//                        //return ResultGenerator.genSuccessResult(picInput.readAllBytes());
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    } finally {
+//                        try {
+//                            picInput.close();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//                return ResultGenerator.genFailResult("没有相应地址的Url");
+//            }
+//
+//        }
+//
+//
+//
+//
+//
+//    }
 }
