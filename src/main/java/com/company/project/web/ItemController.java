@@ -50,14 +50,13 @@ public class ItemController {
         item.setType(params.get("type"));
         item.setOnsale(Boolean.parseBoolean(params.get("onSale")));
         item.setDescription(getUTF8(params.get("description")));
-        item.setImage("[\""+params.get("image")+"\"]");
+        item.setImage("[\"" + params.get("image") + "\"]");
         item.setPrice(Double.parseDouble(params.get("price")));
         return item;
     }
 
     private void listItemFilter(Example.Criteria criteria) {
         criteria.andEqualTo("onsale", true);
-
     }
 
     @PostMapping("/add")
@@ -204,7 +203,7 @@ public class ItemController {
         int idx = fileName.lastIndexOf(".");
         String extention = fileName.substring(idx);
         String uuidFileName = UUID.randomUUID().toString().replace("-", "") + extention;
-        String filePath = System.getProperty("user.dir") + "/picture/avatar/";
+        String filePath = System.getProperty("user.dir") + "/src/main/resource/mystatic";
         String avatarUri = filePath + uuidFileName;
         File dest = new File(avatarUri);
         try {
@@ -212,7 +211,7 @@ public class ItemController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return ResultGenerator.genSuccessResult(avatarUri);
+        return ResultGenerator.genSuccessResult(uuidFileName);
 
     }
 
