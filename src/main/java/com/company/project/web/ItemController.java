@@ -199,7 +199,7 @@ public class ItemController {
         int idx = fileName.lastIndexOf(".");
         String extention = fileName.substring(idx);
         String uuidFileName = UUID.randomUUID().toString().replace("-", "") + extention;
-        String filePath = System.getProperty("user.dir") + "/src/main/resources/public/";
+        String filePath = System.getProperty("user.dir") + "/picture/avatar/";
         String avatarUri = filePath + uuidFileName;
         File dest = new File(avatarUri);
         try {
