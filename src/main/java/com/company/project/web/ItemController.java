@@ -203,7 +203,7 @@ public class ItemController {
         int idx = fileName.lastIndexOf(".");
         String extention = fileName.substring(idx);
         String uuidFileName = UUID.randomUUID().toString().replace("-", "") + extention;
-        String filePath = System.getProperty("user.dir") + "/src/main/resource/mystatic";
+        String filePath = System.getProperty("user.dir") + "/src/main/resource/mystatic/";
         String avatarUri = filePath + uuidFileName;
         File dest = new File(avatarUri);
         try {
@@ -211,6 +211,7 @@ public class ItemController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(uuidFileName);
         return ResultGenerator.genSuccessResult(uuidFileName);
 
     }
