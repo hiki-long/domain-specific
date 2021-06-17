@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -37,15 +38,19 @@ public class ItemController {
     @Resource
     private ItemService itemService;
 
+    private String getUTF8(String s) {
+        return new String(s.getBytes(), StandardCharsets.UTF_8);
+    }
+
     private Item getItemInfo(Map<String, String> params) {
         Item item = new Item();
-        item.setName(params.get("name"));
-        item.setOwner(params.get("owner"));
+        item.setName(getUTF8(params.get("name")));
+        item.setOwner(getUTF8(params.get("owner")));
         item.setRemain(Integer.parseInt(params.get("remain")));
         item.setType(params.get("type"));
         item.setOnsale(Boolean.parseBoolean(params.get("onSale")));
-        item.setDescription(params.get("description"));
-        item.setImage(params.get("image"));
+        item.setDescription(getUTF8(params.get("description")));
+        item.setImage("[\""+params.get("image")+"\"]");
         item.setPrice(Double.parseDouble(params.get("price")));
         return item;
     }
@@ -138,6 +143,10 @@ public class ItemController {
         Example.Criteria criteria = condition.createCriteria();
         listItemFilter(criteria);
         List<Item> list = itemService.findByCondition(condition);
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i).getDescription());
+            System.out.println(getUTF8(list.get(i).getDescription()));
+        }
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
