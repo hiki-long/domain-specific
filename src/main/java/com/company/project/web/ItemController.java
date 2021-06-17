@@ -116,6 +116,7 @@ public class ItemController {
         }
         return ResultGenerator.genSuccessResult("success");
     }
+
     @CrossOrigin
     @GetMapping("/listByOwner")
     public Result listOwnerItem(@RequestParam String ownerName, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
@@ -128,6 +129,7 @@ public class ItemController {
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
+
     @CrossOrigin
     @GetMapping("/listAll")
     public Result listAllItem(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
@@ -185,17 +187,17 @@ public class ItemController {
     将商品的url传给前端
      */
     @PostMapping("/storePicture")
-    public Result storePicture(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response){
-        if(file.isEmpty()){
+    public Result storePicture(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) {
+        if (file.isEmpty()) {
             return ResultGenerator.genFailResult("上传失败,请选择文件");
         }
         String fileName = file.getOriginalFilename();
-        int idx=fileName.lastIndexOf(".");
-        String extention=fileName.substring(idx);
-        String uuidFileName=UUID.randomUUID().toString().replace("-","")+extention;
-        String filePath = System.getProperty("user.dir")+"/picture/avatar/";
-        String avatarUri =filePath+uuidFileName;
-        File dest=new File(avatarUri);
+        int idx = fileName.lastIndexOf(".");
+        String extention = fileName.substring(idx);
+        String uuidFileName = UUID.randomUUID().toString().replace("-", "") + extention;
+        String filePath = System.getProperty("user.dir") + "/picture/avatar/";
+        String avatarUri = filePath + uuidFileName;
+        File dest = new File(avatarUri);
         try {
             file.transferTo(dest);
         } catch (IOException e) {
@@ -204,41 +206,33 @@ public class ItemController {
         return ResultGenerator.genSuccessResult(avatarUri);
 
     }
-    /*
-   记得url存进数据库
-     */
+
     /*
     获取相应的图片
      */
-//    @PostMapping(value = "getAvatar",produces = MediaType.IMAGE_PNG_VALUE)
-//    public void getAvatar(@RequestParam String item HttpServletRequest request){//记得改返回值
-//
-//        String pictureUrl=null;
-//        FileInputStream picInput=null;
-//                //把下面的findUser换成获得相应的商品，方法为getImage
-//                //pictureUrl=findUser.getAvatar();//
-//                if(pictureUrl!=null){
-//                    try {
-//                        picInput=new FileInputStream(pictureUrl);
-//                        //return ResultGenerator.genSuccessResult(picInput.readAllBytes());
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        try {
-//                            picInput.close();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//                return ResultGenerator.genFailResult("没有相应地址的Url");
-//            }
-//
-//        }
-//
-//
-//
-//
-//
-//    }
+    @PostMapping(value = "getAvatar", produces = MediaType.IMAGE_PNG_VALUE)
+    public Result getAvatar(@RequestParam String item, HttpServletRequest request) {//记得改返回值
+
+        String pictureUrl = null;
+        FileInputStream picInput = null;
+        Item currItem = itemService.findById(item);
+        pictureUrl = currItem.getImage();
+        if (pictureUrl != null) {
+            try {
+                picInput = new FileInputStream(pictureUrl);
+                return ResultGenerator.genSuccessResult(picInput.readAllBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    picInput.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return ResultGenerator.genFailResult("没有相应地址的Url");
+    }
+
 }
+
