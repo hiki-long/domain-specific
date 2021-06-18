@@ -142,10 +142,6 @@ public class ItemController {
         Example.Criteria criteria = condition.createCriteria();
         listItemFilter(criteria);
         List<Item> list = itemService.findByCondition(condition);
-        for (int i = 0; i < list.size(); i++) {
-            System.out.println(list.get(i).getDescription());
-            System.out.println(getUTF8(list.get(i).getDescription()));
-        }
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }

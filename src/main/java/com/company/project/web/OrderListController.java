@@ -105,7 +105,6 @@ public class OrderListController {
         orderList.setUuid(UUID.randomUUID().toString());
         orderList.setItems(itemNumbers.toString());
         orderList.setBuyer(userUUID);
-        orderList.setBuyer("");
         orderList.setDelivery("暂无数据");
         orderList.setPrice(getTotalPrice(itemNumbers));
         orderList.setSeller(sellers);
@@ -147,7 +146,6 @@ public class OrderListController {
         Condition condition = new Condition(Orderlist.class);
         Example.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo("uuid", userUUID);
-//        criteria.andEqualTo("buyer", "408b1cfb-ce0f-4f41-b773-e916378e35f5");
         List<Orderlist> list = orderService.findByCondition(condition);
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
