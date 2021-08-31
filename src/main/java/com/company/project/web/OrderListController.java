@@ -82,7 +82,7 @@ public class OrderListController {
     @PostMapping("/createOrder")
     @Transactional
     public Result createOrder(@RequestParam String orderlist,@RequestParam String wishlist, HttpServletRequest request) throws Exception {
-        //创建订单分为两步：创建订单和删除购物车（以及尚未存在的介绍库存之类的操作）
+        //创建订单分为两步：创建订单和删除购物车（以及尚未存在的减少库存之类的操作）
         //创建订单
         String userUUID = getUserSession(request);
         Orderlist resultOrder = orderService.createOrder(orderlist,userUUID);

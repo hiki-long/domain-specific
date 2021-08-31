@@ -42,7 +42,7 @@ public class ItemController {
         return new String(s.getBytes(), StandardCharsets.UTF_8);
     }
 
-    private Item getItemInfo(Map<String, String> params) {
+    public Item getItemInfo(Map<String, String> params) {
         Item item = new Item();
         item.setName(getUTF8(params.get("name")));
         item.setOwner(getUTF8(params.get("owner")));

@@ -2,6 +2,7 @@ package com.company.project.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.dao.OrderListMapper;
 import com.company.project.model.Orderlist;
@@ -57,6 +58,7 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
             itemNumber.price = itemService.findById(itemNumber.itemUUID).getPrice();
             sellers+=itemNumber.owner+",";
             itemNumbers.add(itemNumber);
+            itemService.reduceItem(itemNumber.itemUUID,itemNumber.number);
         }
         Date time = new Date();
         Orderlist orderList = new Orderlist();
