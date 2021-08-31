@@ -120,42 +120,15 @@ public class WishlistController {
         if(userUUID==null){
             return ResultGenerator.genFailResult("没有找到相应的登录数据");
         }
-        ArrayList<String> removeItems=new ArrayList<>();
-        JSONArray tempjsonArray1=JSONObject.parseArray(wishlist);
-        for(int i=0;i<tempjsonArray1.size();i++){
-            JSONObject jsonObject= (JSONObject) tempjsonArray1.get(i);
-            Map<String,Object> map=jsonObject.getInnerMap();
-            String removeItem= (String) map.get("uuid");
-            removeItems.add(removeItem);
-        }
         Wishlist findwishlist=null;
         findwishlist=wishlistService.findBy("owner",userUUID);
-        boolean hasRemove=false;
-        if(findwishlist==null){
-            return ResultGenerator.genFailResult("没有相应的数据");
+        String result = wishlistService.removeWishlist(wishlist,findwishlist);
+        if(null == result){
+            return ResultGenerator.genFailResult("删除失败");
         }
-        else {
-            JSONArray jsonArray=JSONObject.parseArray(findwishlist.getItems());
-            ArrayList<Map<String,Object>> list=new ArrayList<>();
-
-            for(int i=0;i<jsonArray.size();i++){
-                JSONObject jsonObject= (JSONObject) jsonArray.get(i);
-                Map<String,Object> curMap=jsonObject.getInnerMap();
-                if(removeItems.contains((String)(curMap.get("id")))){
-                    hasRemove=true;
-                }
-                else {
-                    list.add(curMap);
-                }
-            }
-            if(!hasRemove){
-                return ResultGenerator.genFailResult("没有能从购物车移除");
-            }
-            String result=JSONObject.toJSONString(list);
-            findwishlist.setItems(result);
-            wishlistService.update(findwishlist);
-        }
-            return ResultGenerator.genSuccessResult("成功删除");
+        findwishlist.setItems(result);
+        wishlistService.update(findwishlist);
+        return ResultGenerator.genSuccessResult("成功删除");
     }
 
     @GetMapping("listItem")

@@ -8,5 +8,6 @@ import com.company.project.core.Service;
  * Created by CodeGenerator on 2021/04/21.
  */
 public interface WishlistService extends Service<Wishlist> {
+    String removeWishlist(String wishlist, Wishlist findWishlist);
 
 }

@@ -9,4 +9,7 @@ import com.company.project.core.Service;
  */
 public interface OrderService extends Service<Orderlist> {
 
+    Orderlist createOrder(String orderlist, String userUUID);
+
+
 }

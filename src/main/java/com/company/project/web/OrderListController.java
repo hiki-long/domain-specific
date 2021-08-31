@@ -7,13 +7,16 @@ import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
 import com.company.project.model.Orderlist;
+import com.company.project.model.Wishlist;
 import com.company.project.service.ItemService;
 import com.company.project.service.OrderService;
+import com.company.project.service.WishlistService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpRequest;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
@@ -32,22 +35,14 @@ import java.util.*;
 public class OrderListController {
     @Resource
     private OrderService orderService;
-    @Resource
-    private ItemService itemService;
+
     private Auth auth;
 
+    @Autowired
+    private WishlistService wishlistService;
 
-    private class ItemNumber implements Serializable {
-        String itemUUID;
-        Integer number;
-        String owner;
-        double price;
 
-        @Override
-        public String toString(){
-            return "itemUUID="+itemUUID+",number="+number;
-        }
-    }
+
 
     @PostMapping("/add")
     public Result add(Orderlist orderList) {
@@ -85,39 +80,29 @@ public class OrderListController {
 
     @CrossOrigin
     @PostMapping("/createOrder")
-    public Result createOrder(@RequestParam String orderlist,HttpServletRequest request) throws Exception {
-        List<ItemNumber> itemNumbers = new ArrayList<>();
-        String sellers=new String();
-        JSONArray json = JSONObject.parseArray(orderlist);
-        String userUUID=getUserSession(request);
-        for (int i = 0; i < json.size(); i++) {
-            JSONObject jsonObject = json.getJSONObject(i);
-            ItemNumber itemNumber = new ItemNumber();
-            itemNumber.itemUUID = jsonObject.get("itemUUID").toString();
-            itemNumber.number = Integer.parseInt(jsonObject.get("number").toString());
-            itemNumber.owner = jsonObject.get("owner").toString();
-            itemNumber.price = itemService.findById(itemNumber.itemUUID).getPrice();
-            sellers+=itemNumber.owner+",";
-            itemNumbers.add(itemNumber);
-        }
-        Date time = new Date();
-        Orderlist orderList = new Orderlist();
-        orderList.setUuid(UUID.randomUUID().toString());
-        orderList.setItems(itemNumbers.toString());
-        orderList.setBuyer(userUUID);
-        orderList.setDelivery("暂无数据");
-        orderList.setPrice(getTotalPrice(itemNumbers));
-        orderList.setSeller(sellers);
-        orderList.setTime(time);
-        orderList.setPaid(true);
-        orderList.setFinish(false);
-        try {
-            orderService.save(orderList);
-        } catch (Exception e) {
-            e.printStackTrace();
+    @Transactional
+    public Result createOrder(@RequestParam String orderlist,@RequestParam String wishlist, HttpServletRequest request) throws Exception {
+        //创建订单分为两步：创建订单和删除购物车（以及尚未存在的介绍库存之类的操作）
+        //创建订单
+        String userUUID = getUserSession(request);
+        Orderlist resultOrder = orderService.createOrder(orderlist,userUUID);
+        if(null == resultOrder){
             return ResultGenerator.genFailResult("failed");
         }
-        return ResultGenerator.genSuccessResult(orderList.getUuid()+","+orderList.getPrice());
+        orderService.save(resultOrder);
+        //删除相应的购物车
+        Wishlist findwishlist=wishlistService.findBy("owner",userUUID);
+        if(null == findwishlist){
+            return ResultGenerator.genFailResult("failed");
+        }
+        //这里需要将分成两个接口的参数放在一起传递
+        String result = wishlistService.removeWishlist(wishlist,findwishlist);
+        if(null == result){
+            return ResultGenerator.genFailResult("failed");
+        }
+        findwishlist.setItems(result);
+        wishlistService.update(findwishlist);
+        return ResultGenerator.genSuccessResult(resultOrder.getUuid()+","+resultOrder.getPrice());
     }
 
     @CrossOrigin
@@ -151,13 +136,7 @@ public class OrderListController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
-    public float getTotalPrice(List<ItemNumber> itemNumbers) {
-        int res = 0;
-        for (ItemNumber i : itemNumbers) {
-            res += i.number * i.price;
-        }
-        return res;
-    }
+
     private String getUserSession(HttpServletRequest request){
         HttpSession session=null;
         session=request.getSession();
