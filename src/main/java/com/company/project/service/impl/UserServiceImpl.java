@@ -1,5 +1,6 @@
 package com.company.project.service.impl;
 
+import com.company.project.dao.MasterDataSource;
 import com.company.project.dao.UserMapper;
 import com.company.project.model.User;
 import com.company.project.service.UserService;
@@ -20,25 +21,15 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
     @Resource
     private UserMapper userMapper;
     @Override
+    @MasterDataSource
     public void updateUserPasswd(User user) {
         userMapper.updateUserPasswd(user);
     }
 
     @Override
+    @MasterDataSource
     public void updateUserUsername(User user) {
         userMapper.updateUserUsername(user);
     }
-
-    @Override
-    public void deleteById(String id) {
-
-    }
-
-    @Override
-    public User findById(String id) {
-        return null;
-    }
-
-
 
 }

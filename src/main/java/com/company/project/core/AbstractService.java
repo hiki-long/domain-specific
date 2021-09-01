@@ -1,6 +1,8 @@
 package com.company.project.core;
 
 
+import com.company.project.dao.MasterDataSource;
+import com.company.project.dao.ReadDataSource;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Condition;
@@ -23,27 +25,27 @@ public abstract class AbstractService<T> implements Service<T> {
         ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
         modelClass = (Class<T>) pt.getActualTypeArguments()[0];
     }
-
+    @MasterDataSource
     public void save(T model) {
         mapper.insertSelective(model);
     }
-
+    @MasterDataSource
     public void save(List<T> models) {
         mapper.insertList(models);
     }
-
+    @MasterDataSource
     public void deleteById(String id) {
         mapper.deleteByPrimaryKey(id);
     }
-
+    @MasterDataSource
     public void deleteByIds(String ids) {
         mapper.deleteByIds(ids);
     }
-
+    @MasterDataSource
     public void update(T model) {
         mapper.updateByPrimaryKeySelective(model);
     }
-
+    @ReadDataSource
     public T findById(String id) {
         return mapper.selectByPrimaryKey(id);
     }
@@ -60,15 +62,15 @@ public abstract class AbstractService<T> implements Service<T> {
             throw new ServiceException(e.getMessage(), e);
         }
     }
-
+    @ReadDataSource
     public List<T> findByIds(String ids) {
         return mapper.selectByIds(ids);
     }
-
+    @ReadDataSource
     public List<T> findByCondition(Condition condition) {
         return mapper.selectByCondition(condition);
     }
-
+    @ReadDataSource
     public List<T> findAll() {
         return mapper.selectAll();
     }

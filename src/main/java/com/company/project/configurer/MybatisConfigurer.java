@@ -1,16 +1,27 @@
 package com.company.project.configurer;
 
+import com.company.project.datasource.DatabaseType;
+import com.company.project.datasource.DynamicDataSource;
 import com.github.pagehelper.PageHelper;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import tk.mybatis.spring.mapper.MapperScannerConfigurer;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static com.company.project.core.ProjectConstant.*;
@@ -18,13 +29,14 @@ import static com.company.project.core.ProjectConstant.*;
 /**
  * Mybatis & Mapper & PageHelper 配置
  */
+@EnableTransactionManagement(proxyTargetClass = true)
 @Configuration
 public class MybatisConfigurer {
 
     @Bean
-    public SqlSessionFactory sqlSessionFactoryBean(DataSource dataSource) throws Exception {
+    public SqlSessionFactory sqlSessionFactoryBean(DataSource myRoutingDataSource) throws Exception {
         SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
-        factory.setDataSource(dataSource);
+        factory.setDataSource(myRoutingDataSource);
         factory.setTypeAliasesPackage(MODEL_PACKAGE);
 
         //配置分页插件，详情请查阅官方文档
@@ -58,6 +70,43 @@ public class MybatisConfigurer {
         mapperScannerConfigurer.setProperties(properties);
 
         return mapperScannerConfigurer;
+    }
+    @Bean
+    public PlatformTransactionManager platformTransactionManager(DataSource myRoutingDataSource){
+        return new DataSourceTransactionManager(myRoutingDataSource);
+    }
+    @Bean
+    @Primary
+    @ConfigurationProperties("spring.datasource.master")
+    public DataSource masterDataSource(){
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.slave1")
+    public DataSource slave1DataSource(){
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties("spring.datasource.slave2")
+    public DataSource slave2DataSource(){
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    public DataSource myRoutingDataSource(@Qualifier("masterDataSource") DataSource masterDataSource,
+                                          @Qualifier("slave1DataSource") DataSource slave1DataSource,
+                                          @Qualifier("slave2DataSource") DataSource slave2DataSource){
+        Map<Object, Object> targetDataSources = new HashMap<>();
+        targetDataSources.put(DatabaseType.master,masterDataSource);
+        targetDataSources.put(DatabaseType.slave1,slave1DataSource);
+        targetDataSources.put(DatabaseType.slave2,slave2DataSource);
+        DynamicDataSource dynamicDataSource = new DynamicDataSource();
+        dynamicDataSource.setDefaultTargetDataSource(masterDataSource);
+        dynamicDataSource.setTargetDataSources(targetDataSources);
+        return dynamicDataSource;
+
     }
 
 }
