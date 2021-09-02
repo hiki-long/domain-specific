@@ -8,12 +8,13 @@
         <id column="UUID" jdbcType="VARCHAR" property="uuid"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="owner" jdbcType="VARCHAR" property="owner"/>
-        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="itemType" jdbcType="VARCHAR" property="type"/>
         <result column="remain" jdbcType="INTEGER" property="remain"/>
         <result column="onSale" jdbcType="BIT" property="onsale"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="image" jdbcType="VARCHAR" property="image"/>
         <result column="price" jdbcType="DOUBLE" property="price"/>
+        <result column="version" jdbcType="INTEGER" property="version"></result>
     </resultMap>
 
 </mapper>
