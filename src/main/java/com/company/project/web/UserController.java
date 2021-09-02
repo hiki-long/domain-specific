@@ -104,6 +104,17 @@ public class UserController {
         return ResultGenerator.genSuccessResult("success");
     }
 
+    @GetMapping("/isLogin")
+    public Result isLogin(HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        if(session!=null){
+            return ResultGenerator.genSuccessResult("User is login");
+        }else{
+            return ResultGenerator.genFailResult("user is not login");
+        }
+    }
+
     @PostMapping("/login")
     public Result login(@RequestParam Map<String,String> params,HttpServletRequest request)  {
 
