@@ -120,7 +120,7 @@ public class WishlistController {
 //        if(userUUID==null){
 //            return ResultGenerator.genFailResult("没有找到相应的登录数据");
 //        }
-        wishlist="[{\"num\":1,\"str\":\"b0da8ca9-d935-4455-8d06-d9c10b1f8bc4\"}]";
+        wishlist="[{\"num\":1,\"id\":\"b0da8ca9-d935-4455-8d06-d9c10b1f8bc4\"}]";
         Wishlist findwishlist= new Wishlist();
         findwishlist.setItems("[{\"num\":1,\"id\":\"b0da8ca9-d935-4455-8d06-d9c10b1f8bc4\"},{\"num\":1,\"id\":\"c2013d7e-e716-44f6-b334-e94eb1a0e26f\"},{\"num\":1,\"id\":\"6eaa71ff-d896-445e-a8bd-53c61920ae0c\"},{\"num\":1,\"id\":\"558818c3-7e6d-4f54-98b6-b46431a0cbfe\"},{\"num\":2,\"id\":\"fe9a9f61-ace6-4389-94be-6f6ebd9aeb23\"},{\"num\":1,\"id\":\"15656ab2-296b-4360-a34a-66d5d91535c5\"},{\"num\":3,\"id\":\"235c039e-9599-4d16-8b95-0be5deda15db\"}]");
         findwishlist.setOwner("408b1cfb-ce0f-4f41-b773-e916378e35f5");
