@@ -24,6 +24,8 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
 
     private ItemController itemController;
 
+    private ItemService itemService;
+
     public Result reduceItem(String uuid,int number){
         Result result =itemController.detail(uuid);
         Item item=(Item)result.getData();
@@ -32,6 +34,7 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
             remain-=number;
             if(remain>=0){
                 item.setRemain(remain);
+                itemService.update(item);
             }else{
                 throw new RuntimeException();
             }

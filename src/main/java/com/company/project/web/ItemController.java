@@ -3,6 +3,7 @@ package com.company.project.web;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
+import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
@@ -19,6 +20,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +39,8 @@ import java.util.UUID;
 public class ItemController {
     @Resource
     private ItemService itemService;
+
+    private Auth auth;
 
     private String getUTF8(String s) {
         return new String(s.getBytes(), StandardCharsets.UTF_8);
@@ -100,6 +104,8 @@ public class ItemController {
     @PostMapping("/addItem")
     public Result addItem(@RequestParam Map<String, String> params, HttpServletRequest request) {
         Item item = getItemInfo(params);
+        String userUUID = getUserSession(request);
+        item.setOwner(userUUID);
         item.setUuid(UUID.randomUUID().toString());
         try {
             itemService.save(item);
@@ -236,6 +242,32 @@ public class ItemController {
             }
         }
         return ResultGenerator.genFailResult("没有相应地址的Url");
+    }
+
+    private String getUserSession(javax.servlet.http.HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        String redisuuid=null;
+        String uuid=null;
+        auth= Auth.getInstance();
+        if(auth==null){
+            return null;
+        }
+        if(session!=null){
+            redisuuid=(String)session.getAttribute("uuid");
+            if(redisuuid!=null){
+                try {
+                    uuid=auth.getSession(redisuuid);
+                    if(uuid!=null){
+                        return uuid;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+
     }
 
 }
