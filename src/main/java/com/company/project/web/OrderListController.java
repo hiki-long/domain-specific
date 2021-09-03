@@ -81,29 +81,28 @@ public class OrderListController {
     @CrossOrigin
     @PostMapping("/createOrder")
     @Transactional
-    public Result createOrder(@RequestParam String orderlist,@RequestParam String wishlist, HttpServletRequest request) throws Exception {
-        //创建订单分为三步：确定库存的数量并消耗，创建订单和删除购物车（以及尚未存在的介绍库存之类的操作）
-        //确定库存
+    public Result createOrder(@RequestParam String orderlist, @RequestParam String wishlist, HttpServletRequest request) throws Exception {
+        //创建订单分为两步：创建订单和删除购物车（以及尚未存在的减少库存之类的操作）
         //创建订单
         String userUUID = getUserSession(request);
-        Orderlist resultOrder = orderService.createOrder(orderlist,userUUID);
-        if(null == resultOrder){
+        Orderlist resultOrder = orderService.createOrder(orderlist, userUUID);
+        if (null == resultOrder) {
             return ResultGenerator.genFailResult("failed");
         }
         orderService.save(resultOrder);
         //删除相应的购物车
-        Wishlist findwishlist=wishlistService.findBy("owner",userUUID);
-        if(null == findwishlist){
+        Wishlist findwishlist = wishlistService.findBy("owner", userUUID);
+        if (null == findwishlist) {
             return ResultGenerator.genFailResult("failed");
         }
         //这里需要将分成两个接口的参数放在一起传递
-        String result = wishlistService.removeWishlist(wishlist,findwishlist);
-        if(null == result){
+        String result = wishlistService.removeWishlist(wishlist, findwishlist);
+        if (null == result) {
             return ResultGenerator.genFailResult("failed");
         }
         findwishlist.setItems(result);
         wishlistService.update(findwishlist);
-        return ResultGenerator.genSuccessResult(resultOrder.getUuid()+","+resultOrder.getPrice());
+        return ResultGenerator.genSuccessResult(resultOrder.getUuid() + "," + resultOrder.getPrice());
     }
 
     @CrossOrigin
@@ -128,7 +127,7 @@ public class OrderListController {
     @GetMapping("/listOrderByUser")
     public Result listOrderByUser(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) throws Exception {
         PageHelper.startPage(page, size);
-        String userUUID=getUserSession(request);
+        String userUUID = getUserSession(request);
         Condition condition = new Condition(Orderlist.class);
         Example.Criteria criteria = condition.createCriteria();
         criteria.andEqualTo("uuid", userUUID);
@@ -138,21 +137,21 @@ public class OrderListController {
     }
 
 
-    private String getUserSession(HttpServletRequest request){
-        HttpSession session=null;
-        session=request.getSession();
-        String redisuuid=null;
-        String uuid=null;
-        auth=Auth.getInstance();
-        if(auth==null){
+    private String getUserSession(HttpServletRequest request) {
+        HttpSession session = null;
+        session = request.getSession();
+        String redisuuid = null;
+        String uuid = null;
+        auth = Auth.getInstance();
+        if (auth == null) {
             return null;
         }
-        if(session!=null){
-            redisuuid=(String)session.getAttribute("uuid");
-            if(redisuuid!=null){
+        if (session != null) {
+            redisuuid = (String) session.getAttribute("uuid");
+            if (redisuuid != null) {
                 try {
-                    uuid=auth.getSession(redisuuid);
-                    if(uuid!=null){
+                    uuid = auth.getSession(redisuuid);
+                    if (uuid != null) {
                         return uuid;
                     }
                 } catch (Exception e) {

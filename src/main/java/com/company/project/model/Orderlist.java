@@ -20,7 +20,7 @@ public class Orderlist {
 
     private String delivery;
 
-    private Date time;
+    private Date ordertime;
 
     private Boolean paid;
 
@@ -130,14 +130,14 @@ public class Orderlist {
      * @return time
      */
     public Date getTime() {
-        return time;
+        return ordertime;
     }
 
     /**
      * @param time
      */
     public void setTime(Date time) {
-        this.time = time;
+        this.ordertime = time;
     }
 
     /**

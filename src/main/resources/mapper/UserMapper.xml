@@ -8,9 +8,9 @@
         <id column="uuid" jdbcType="VARCHAR" property="uuid"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
-        <result column="role" jdbcType="VARCHAR" property="role"/>
+        <result column="userRole" jdbcType="VARCHAR" property="userRole"/>
         <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
-        <result column="rank" jdbcType="REAL" property="rank"/>
+        <result column="userRank" jdbcType="REAL" property="userRank"/>
         <result column="passwd" jdbcType="VARCHAR" property="passwd"/>
     </resultMap>
     <update id="updateUserPasswd" parameterType="com.company.project.model.User">

@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -24,37 +23,49 @@ public class WishlistServiceImpl extends AbstractService<Wishlist> implements Wi
     @Resource
     private WishlistMapper wishlistMapper;
 
+    /**
+     *
+     * @param wishlist
+     * @param findWishlist
+     * 注意，需要考虑清楚传递的是删除的数字还是设定后结果的数字（应该设置后的数字）
+     * @return
+     */
     @Override
     public String removeWishlist(String wishlist, Wishlist findWishlist) {
-        ArrayList<String> removeItems = new ArrayList<>();
+        //将移出的对象进行列表,移出对象需要用Map来表示
+        Map<String,Integer> removeItems = new HashMap<>();
         JSONArray tempjsonArray1 = JSONObject.parseArray(wishlist);
         for (int i = 0; i < tempjsonArray1.size(); i++) {
             JSONObject jsonObject = (JSONObject) tempjsonArray1.get(i);
             Map<String, Object> map = jsonObject.getInnerMap();
-            String removeItem = (String) map.get("uuid");
-            removeItems.add(removeItem);
+            String removeItem = (String) map.get("id");
+            Integer removeNum = (Integer) map.get("num");
+            removeItems.put(removeItem,removeNum);
         }
-        boolean hasRemove = false;
         if (findWishlist == null) {
             return null;
         } else {
             JSONArray jsonArray = JSONObject.parseArray(findWishlist.getItems());
             ArrayList<Map<String, Object>> list = new ArrayList<>();
-
+            int changeNum =0;
+            Set<String> removeNames = removeItems.keySet();
+            JSONArray newJsonArray = new JSONArray();
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                 Map<String, Object> curMap = jsonObject.getInnerMap();
-                if (removeItems.contains((String) (curMap.get("id")))) {
-                    hasRemove = true;
-                } else {
-                    list.add(curMap);
+                String UUID = (String)curMap.get("id");
+                if (removeNames.contains(UUID)){
+                    changeNum = removeItems.get(UUID);
+                    //修改数字
+                    curMap.put(UUID,changeNum);
+                }
+                if(changeNum != 0) {
+                    newJsonArray.add(jsonObject);
                 }
             }
-            if (!hasRemove) {
-                return null;
-            }
-            String result = JSONObject.toJSONString(list);
+            String result =newJsonArray.toJSONString();
             return result;
         }
     }
+
 }

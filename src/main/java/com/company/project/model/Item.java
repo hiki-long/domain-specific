@@ -18,11 +18,21 @@ public class Item {
 
     private String description;
 
-    private String type;
+    private String itemtype;
 
     private double price;
 
     private String image;
+
+    private Integer version;
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     /**
      * @return UUID
@@ -109,11 +119,11 @@ public class Item {
     }
 
     public void  setType(String type){
-        this.type = type;
+        this.itemtype = type;
     }
 
     public String getType(){
-        return type;
+        return itemtype;
     }
 
     public void setPrice(double price) {

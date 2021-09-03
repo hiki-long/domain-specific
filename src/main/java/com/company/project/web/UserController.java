@@ -11,6 +11,7 @@ import com.company.project.model.User;
 import com.company.project.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.executor.ReuseExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
@@ -92,9 +93,9 @@ public class UserController {
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswd(BCrypt.withDefaults().hashToString(12,passwd.toCharArray()));
-        user.setRole("buyer");
+        user.setUserRole("buyer");
         user.setAvatar("default");
-        user.setRank(5.0F);
+        user.setUserRank(5.0F);
         user.setUuid(UUID.randomUUID().toString());
         try {
             userService.save(user);
@@ -102,6 +103,27 @@ public class UserController {
             return ResultGenerator.genFailResult("failed");
         }
         return ResultGenerator.genSuccessResult("success");
+    }
+
+    @GetMapping("/isLogin")
+    public Result isLogin(HttpServletRequest request){
+        HttpSession session=null;
+        session=request.getSession();
+        auth=Auth.getInstance(stringRedisTemplate);
+        if(session!=null){
+            String tryUUID= (String) session.getAttribute("uuid");
+            if(tryUUID!=null){
+                if(auth.hasSession(tryUUID)){
+                    return ResultGenerator.genSuccessResult("User is login");
+                }else{
+                    return ResultGenerator.genFailResult("user is not exist");
+                }
+            }else{
+                return ResultGenerator.genFailResult("User is not login");
+            }
+        }else{
+            return ResultGenerator.genFailResult("User is not login");
+        }
     }
 
     @PostMapping("/login")
