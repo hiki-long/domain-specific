@@ -8,7 +8,7 @@
         <id column="UUID" jdbcType="VARCHAR" property="uuid"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="owner" jdbcType="VARCHAR" property="owner"/>
-        <result column="itemType" jdbcType="VARCHAR" property="type"/>
+        <result column="itemType" jdbcType="VARCHAR" property="itemtype"/>
         <result column="remain" jdbcType="INTEGER" property="remain"/>
         <result column="onSale" jdbcType="BIT" property="onsale"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>

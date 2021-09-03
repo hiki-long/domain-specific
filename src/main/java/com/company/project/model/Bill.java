@@ -10,7 +10,7 @@ public class Bill {
 
     private Float price;
 
-    private String type;
+    private String paytype;
 
     private String payment;
 
@@ -60,14 +60,14 @@ public class Bill {
      * @return type
      */
     public String getType() {
-        return type;
+        return paytype;
     }
 
     /**
      * @param type
      */
     public void setType(String type) {
-        this.type = type;
+        this.paytype = type;
     }
 
     /**

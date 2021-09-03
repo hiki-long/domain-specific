@@ -10,11 +10,11 @@ public class User {
 
     private String username;
 
-    private String role;
+    private String userrole;
 
     private String avatar;
 
-    private Float rank;
+    private Float userrank;
 
     private String passwd;
 
@@ -23,6 +23,22 @@ public class User {
      */
     public String getUuid() {
         return uuid;
+    }
+
+    public String getUserRole() {
+        return userrole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userrole = userRole;
+    }
+
+    public Float getUserRank() {
+        return userrank;
+    }
+
+    public void setUserRank(Float userRank) {
+        this.userrank = userRank;
     }
 
     /**
@@ -60,19 +76,8 @@ public class User {
         this.username = username;
     }
 
-    /**
-     * @return role
-     */
-    public String getRole() {
-        return role;
-    }
 
-    /**
-     * @param role
-     */
-    public void setRole(String role) {
-        this.role = role;
-    }
+
 
     /**
      * @return avatar
@@ -88,19 +93,7 @@ public class User {
         this.avatar = avatar;
     }
 
-    /**
-     * @return rank
-     */
-    public Float getRank() {
-        return rank;
-    }
 
-    /**
-     * @param rank
-     */
-    public void setRank(Float rank) {
-        this.rank = rank;
-    }
 
     /**
      * @return passwd

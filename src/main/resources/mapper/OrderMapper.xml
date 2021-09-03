@@ -12,7 +12,7 @@
         <result column="price" jdbcType="REAL" property="price"/>
         <result column="bill" jdbcType="VARCHAR" property="bill"/>
         <result column="delivery" jdbcType="VARCHAR" property="delivery"/>
-        <result column="orderTime" jdbcType="TIME" property="time"/>
+        <result column="orderTime" jdbcType="TIME" property="orderTime"/>
         <result column="paid" jdbcType="BIT" property="paid"/>
         <result column="finish" jdbcType="BIT" property="finish"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>

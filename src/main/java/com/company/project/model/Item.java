@@ -18,7 +18,7 @@ public class Item {
 
     private String description;
 
-    private String type;
+    private String itemtype;
 
     private double price;
 
@@ -119,11 +119,11 @@ public class Item {
     }
 
     public void  setType(String type){
-        this.type = type;
+        this.itemtype = type;
     }
 
     public String getType(){
-        return type;
+        return itemtype;
     }
 
     public void setPrice(double price) {

@@ -93,9 +93,9 @@ public class UserController {
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswd(BCrypt.withDefaults().hashToString(12,passwd.toCharArray()));
-        user.setRole("buyer");
+        user.setUserRole("buyer");
         user.setAvatar("default");
-        user.setRank(5.0F);
+        user.setUserRank(5.0F);
         user.setUuid(UUID.randomUUID().toString());
         try {
             userService.save(user);
