@@ -21,9 +21,9 @@ import javax.annotation.Resource;
 public class ItemServiceImpl extends AbstractService<Item> implements ItemService {
     @Resource
     private ItemMapper itemMapper;
-
+    @Resource
     private ItemController itemController;
-
+    @Resource
     private ItemService itemService;
 
     public Result reduceItem(String uuid,int number){

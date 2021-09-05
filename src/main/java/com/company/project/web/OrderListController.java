@@ -128,7 +128,7 @@ public class OrderListController {
         String userUUID = getUserSession(request);
         Condition condition = new Condition(Orderlist.class);
         Example.Criteria criteria = condition.createCriteria();
-        criteria.andEqualTo("uuid", userUUID);
+        criteria.andEqualTo("buyer", userUUID);
         List<Orderlist> list = orderService.findByCondition(condition);
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
