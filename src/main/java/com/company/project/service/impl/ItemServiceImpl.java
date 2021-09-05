@@ -26,7 +26,8 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
     @Resource
     private ItemService itemService;
 
-    public Result reduceItem(String uuid,int number){
+    @Override
+    public Result reduceItem(String uuid, int number){
         Result result =itemController.detail(uuid);
         Item item=(Item)result.getData();
         if(item!=null){
