@@ -74,7 +74,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @GetMapping("/list")
+    @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<User> list = userService.findAll();
@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @GetMapping("/countUser")
+    @PostMapping("/countUser")
     public Result countUser(){
         List<User> list=userService.findAll();
         int length=list.size();
