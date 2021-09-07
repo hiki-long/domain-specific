@@ -81,6 +81,13 @@ public class UserController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
+    @GetMapping("/countUser")
+    public Result countUser(){
+        List<User> list=userService.findAll();
+        int length=list.size();
+        return ResultGenerator.genSuccessResult(length);
+    }
+
     @PostMapping("/register")
     public Result regieter(@RequestParam Map<String,String> params,HttpServletRequest request){
         String email = params.get("email");

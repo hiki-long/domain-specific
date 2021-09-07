@@ -99,6 +99,12 @@ public class ItemController {
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
+    @GetMapping("/countItem")
+    public Result countItem(){
+        List<Item> list = itemService.findAll();
+        int length = list.size();
+        return ResultGenerator.genSuccessResult(length);
+    }
 
     @CrossOrigin
     @PostMapping("/addItem")
