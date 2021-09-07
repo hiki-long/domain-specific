@@ -41,7 +41,7 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
                     throw new RuntimeException();
                 }
             } catch (RuntimeException e) {
-                return ResultGenerator.genFailResult("Remain is under 0");
+                return ResultGenerator.genFailResult("Remain is  0");
             }
 
         } else {

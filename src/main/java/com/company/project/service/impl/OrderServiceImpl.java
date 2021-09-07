@@ -39,10 +39,23 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
         String url;
         String name;
 
-
-        @Override
-        public String toString(){
-            return "{itemUUID="+itemUUID+",name="+name+",number="+number+",owner="+owner+",totalPrice="+totalPrice+",url="+url+"}";
+        public String getItemUUID(){
+            return itemUUID;
+        }
+        public String getOwner(){
+            return owner;
+        }
+        public Integer getNumber(){
+            return number;
+        }
+        public double getTotalPrice(){
+            return totalPrice;
+        }
+        public String getUrl(){
+            return url;
+        }
+        public String getName(){
+            return name;
         }
     }
 
