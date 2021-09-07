@@ -16,5 +16,9 @@
         <result column="price" jdbcType="DOUBLE" property="price"/>
         <result column="version" jdbcType="INTEGER" property="version"></result>
     </resultMap>
+    <update id="updateByVersion" >
+        update item set remain =#{remain}, version = #{newversion} where UUID =#{uuid} and version=#{oldversion}
+    </update>
+    
 
 </mapper>

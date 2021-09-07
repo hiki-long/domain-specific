@@ -255,6 +255,7 @@ public class UserController {
         Enumeration em = request.getSession().getAttributeNames();
         String attribute=null;
         String keyid=null;
+
         while(em.hasMoreElements()){
             attribute=em.nextElement().toString();
             if(attribute=="uuid"){

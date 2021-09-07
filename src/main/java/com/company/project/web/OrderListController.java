@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.company.project.core.Auth;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
+import com.company.project.dao.ItemMapper;
 import com.company.project.model.Item;
 import com.company.project.model.Orderlist;
 import com.company.project.model.Wishlist;
@@ -35,6 +36,7 @@ import java.util.*;
 public class OrderListController {
     @Resource
     private OrderService orderService;
+
 
     private Auth auth;
 
@@ -121,6 +123,8 @@ public class OrderListController {
         orderList.setFinish(true);
         return ResultGenerator.genSuccessResult("success");
     }
+
+
 
 
     @CrossOrigin

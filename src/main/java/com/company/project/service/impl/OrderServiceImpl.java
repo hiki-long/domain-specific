@@ -45,12 +45,15 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
     }
 
 
+
+
     public Orderlist createOrder(String orderlist,String userUUID) {
         List<ItemNumber> itemNumbers = new ArrayList<>();
         String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
         for (int i = 0; i < json.size(); i++) {
             JSONObject jsonObject = json.getJSONObject(i);
+
             ItemNumber itemNumber = new ItemNumber();
             itemNumber.itemUUID = jsonObject.get("itemUUID").toString();
             itemNumber.number = Integer.parseInt(jsonObject.get("number").toString());

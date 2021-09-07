@@ -2,20 +2,33 @@ package domainspecific.demo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.company.project.Application;
+import com.company.project.dao.ItemMapper;
 import com.company.project.model.Wishlist;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@SpringBootTest
+import javax.annotation.Resource;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = Application.class)
 class DemoApplicationTests {
 
+    @Resource
+    ItemMapper itemMapper;
     @Test
     void contextLoads() {
-        Itemm itemm = new Itemm();
-        itemm.setNum(1);
-        itemm.setStr("b0da8ca9-d935-4455-8d06-d9c10b1f8bc4");
-        String result = JSONObject.toJSONString(itemm);
-        System.out.println(result);
+
+        String uuid = "1b33953f-fa6f-40ce-a6e0-7b11259fde7f";
+        int oldversion =0;
+        int newversion =1;
+        int remain =3;
+//        itemMapper.updateByVersion(remain,newversion,uuid,oldversion);
     }
 
 }
