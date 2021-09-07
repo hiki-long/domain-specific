@@ -10,7 +10,7 @@ import com.company.project.core.Service;
  */
 public interface OrderService extends Service<Orderlist> {
 
-    Result createOrder(String orderlist, String userUUID);
+    Orderlist createOrder(String orderlist, String userUUID);
 
 
 }
