@@ -99,11 +99,11 @@ public class ItemController {
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
-    @CrossOrigin
-    @PostMapping("/test")
-    public void test() {
-        itemService.test();
-    }
+//    @CrossOrigin
+//    @PostMapping("/test")
+//    public void test() {
+//        itemService.test();
+//    }
 
     @CrossOrigin
     @PostMapping("/addItem")

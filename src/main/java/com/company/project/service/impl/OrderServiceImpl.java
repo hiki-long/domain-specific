@@ -32,56 +32,100 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
     @Resource
     private ItemService itemService;
 
-    private class ItemNumber implements Serializable {
+    private class OrderItemInfo implements Serializable {
         String itemUUID;
         Integer number;
         String owner;
-        double price;
+        double totalPrice;
+        String url;
+        String name;
+
+        public String getItemUUID() {
+            return itemUUID;
+        }
+
+        public void setItemUUID(String itemUUID) {
+            this.itemUUID = itemUUID;
+        }
+
+        public Integer getNumber() {
+            return number;
+        }
+
+        public void setNumber(Integer number) {
+            this.number = number;
+        }
+
+        public String getOwner() {
+            return owner;
+        }
+
+        public void setOwner(String owner) {
+            this.owner = owner;
+        }
+
+        public double getTotalPrice() {
+            return totalPrice;
+        }
+
+        public void setTotalPrice(double totalPrice) {
+            this.totalPrice = totalPrice;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
 
         @Override
         public String toString(){
-            return "itemUUID="+itemUUID+",number="+number;
+            return "{itemUUID="+itemUUID+",name="+name+",number="+number+",owner="+owner+",totalPrice="+totalPrice+",url="+url+"}";
         }
     }
 
 
-
-
     public Orderlist createOrder(String orderlist,String userUUID) {
-        List<ItemNumber> itemNumbers = new ArrayList<>();
+        float totalPrice=0;
+        List<OrderItemInfo> orderItemInfos = new ArrayList<>();
         String sellers=new String();
         JSONArray json = JSONObject.parseArray(orderlist);
         for (int i = 0; i < json.size(); i++) {
             JSONObject jsonObject = json.getJSONObject(i);
-
-            ItemNumber itemNumber = new ItemNumber();
-            itemNumber.itemUUID = jsonObject.get("itemUUID").toString();
-            itemNumber.number = Integer.parseInt(jsonObject.get("number").toString());
-            itemNumber.owner = jsonObject.get("owner").toString();
-            itemNumber.price = itemService.findById(itemNumber.itemUUID).getPrice();
-            sellers+=itemNumber.owner+",";
-            itemNumbers.add(itemNumber);
-            itemService.reduceItem(itemNumber.itemUUID,itemNumber.number);
+            OrderItemInfo orderItemInfo = new OrderItemInfo();
+            orderItemInfo.itemUUID = jsonObject.get("itemUUID").toString();
+            orderItemInfo.number = Integer.parseInt(jsonObject.get("number").toString());
+            orderItemInfo.owner = jsonObject.get("owner").toString();
+            orderItemInfo.totalPrice = itemService.findById(orderItemInfo.itemUUID).getPrice()*orderItemInfo.number;
+            orderItemInfo.url=itemService.findById(orderItemInfo.itemUUID).getImage();
+            orderItemInfo.name=itemService.findById(orderItemInfo.itemUUID).getName();
+            sellers+= orderItemInfo.owner+",";
+            itemService.reduceItem(orderItemInfo.itemUUID, orderItemInfo.number);
+            orderItemInfos.add(orderItemInfo);
+            totalPrice+=orderItemInfo.totalPrice;
         }
         Date time = new Date();
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
-        orderList.setItems(itemNumbers.toString());
+        String b = JSONObject.toJSONString(orderItemInfos);
+        orderList.setItems(JSONObject.toJSONString(orderItemInfos));
         orderList.setBuyer(userUUID);
         orderList.setDelivery("暂无数据");
-        orderList.setPrice(getTotalPrice(itemNumbers));
+        orderList.setPrice(totalPrice);
         orderList.setSeller(sellers);
         orderList.setTime(time);
         orderList.setPaid(true);
         orderList.setFinish(false);
         return orderList;
-    }
-
-    public float getTotalPrice(List<ItemNumber> itemNumbers) {
-        int res = 0;
-        for (ItemNumber i : itemNumbers) {
-            res += i.number * i.price;
-        }
-        return res;
     }
 }

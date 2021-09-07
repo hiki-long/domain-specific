@@ -26,23 +26,35 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
 
     private ItemService itemService;
 
-    public void reduceItem(String uuid,int number){
-        Result result =itemController.detail(uuid);
-        Item item=(Item)result.getData();
-        if(item!=null){
-            int remain=item.getRemain();
-            remain-=number;
-            if(remain>=0){
-                item.setRemain(remain);
-                itemService.update(item);
-            }else{
+    private static int tryTime = 5;
+
+    public void reduceItem(String uuid,int number) {
+        int thisTryTime = tryTime;
+        while (thisTryTime > 0) {
+            Result result = itemController.detail(uuid);
+            Item item = (Item) result.getData();
+            if (item != null) {
+                int oldversion = item.getVersion();
+                int remain = item.getRemain();
+                int newversion = oldversion + 1;
+                remain -= number;
+                if (remain >= 0) {
+                    int affect = itemMapper.updateByVersion(remain, newversion, uuid, oldversion);
+                    if (affect != 0) {
+                        return;
+                    } else {
+                        thisTryTime--;
+                    }
+                } else {
+                    throw new RuntimeException();
+                }
+
+            } else {
                 throw new RuntimeException();
             }
-        }else{
-            throw new RuntimeException();
         }
-
     }
+
 
 
 }
