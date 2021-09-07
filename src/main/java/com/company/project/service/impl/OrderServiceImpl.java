@@ -2,6 +2,8 @@ package com.company.project.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Result;
+import com.company.project.core.ResultGenerator;
 import com.company.project.dao.OrderListMapper;
 import com.company.project.model.Orderlist;
 import com.company.project.service.ItemService;
@@ -45,7 +47,7 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
     }
 
 
-    public Orderlist createOrder(String orderlist,String userUUID) {
+    public Result createOrder(String orderlist,String userUUID) {
         float totalPrice=0;
         List<OrderItemInfo> orderItemInfos = new ArrayList<>();
         String sellers=new String();
@@ -60,7 +62,10 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
             orderItemInfo.url=itemService.findById(orderItemInfo.itemUUID).getImage();
             orderItemInfo.name=itemService.findById(orderItemInfo.itemUUID).getName();
             sellers+= orderItemInfo.owner+",";
-            itemService.reduceItem(orderItemInfo.itemUUID, orderItemInfo.number);
+            Result result=itemService.reduceItem(orderItemInfo.itemUUID, orderItemInfo.number);
+            if(result.getCode()==400){
+                return result;
+            }
             orderItemInfos.add(orderItemInfo);
             totalPrice+=orderItemInfo.totalPrice;
         }
@@ -75,6 +80,6 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
         orderList.setTime(time);
         orderList.setPaid(true);
         orderList.setFinish(false);
-        return orderList;
+        return ResultGenerator.genSuccessResult(orderList);
     }
 }

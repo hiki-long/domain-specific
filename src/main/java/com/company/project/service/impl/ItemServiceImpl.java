@@ -27,19 +27,24 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
     private ItemService itemService;
 
     @Override
-    public Result reduceItem(String uuid, int number){
-        Result result =itemController.detail(uuid);
-        Item item=(Item)result.getData();
-        if(item!=null){
-            int remain=item.getRemain();
-            remain-=number;
-            if(remain>=0){
-                item.setRemain(remain);
-                itemService.update(item);
-            }else{
-                throw new RuntimeException();
+    public Result reduceItem(String uuid, int number) {
+        Result result = itemController.detail(uuid);
+        Item item = (Item) result.getData();
+        if (item != null) {
+            int remain = item.getRemain();
+            remain -= number;
+            try {
+                if (remain >= 0) {
+                    item.setRemain(remain);
+                    itemService.update(item);
+                } else {
+                    throw new RuntimeException();
+                }
+            } catch (RuntimeException e) {
+                return ResultGenerator.genFailResult("Remain is under 0");
             }
-        }else{
+
+        } else {
             throw new RuntimeException();
         }
         return ResultGenerator.genSuccessResult("success");
