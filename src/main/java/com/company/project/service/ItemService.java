@@ -10,7 +10,7 @@ import com.company.project.core.Service;
  */
 public interface ItemService extends Service<Item> {
     void reduceItem(String uuid, int number);
-    void test();
+
 
 
 

@@ -26,7 +26,7 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
 
     private ItemService itemService;
 
-    public Result reduceItem(String uuid,int number){
+    public void reduceItem(String uuid,int number){
         Result result =itemController.detail(uuid);
         Item item=(Item)result.getData();
         if(item!=null){
@@ -41,7 +41,8 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
         }else{
             throw new RuntimeException();
         }
-        return ResultGenerator.genSuccessResult("success");
+
     }
+
 
 }
