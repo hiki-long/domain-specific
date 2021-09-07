@@ -1,5 +1,6 @@
 package com.company.project.service;
 
+import com.company.project.core.Result;
 import com.company.project.model.Orderlist;
 import com.company.project.core.Service;
 
@@ -9,7 +10,7 @@ import com.company.project.core.Service;
  */
 public interface OrderService extends Service<Orderlist> {
 
-    Orderlist createOrder(String orderlist, String userUUID);
+    Result createOrder(String orderlist, String userUUID);
 
 
 }

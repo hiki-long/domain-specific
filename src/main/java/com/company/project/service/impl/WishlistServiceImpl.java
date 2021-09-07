@@ -38,8 +38,8 @@ public class WishlistServiceImpl extends AbstractService<Wishlist> implements Wi
         for (int i = 0; i < tempjsonArray1.size(); i++) {
             JSONObject jsonObject = (JSONObject) tempjsonArray1.get(i);
             Map<String, Object> map = jsonObject.getInnerMap();
-            String removeItem = (String) map.get("id");
-            Integer removeNum = (Integer) map.get("num");
+            String removeItem = (String) map.get("uuid");
+            Integer removeNum = (Integer) map.get("number");
             removeItems.put(removeItem,removeNum);
         }
         if (findWishlist == null) {

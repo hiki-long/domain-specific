@@ -15,6 +15,7 @@ import com.company.project.service.WishlistService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,11 +86,15 @@ public class OrderListController {
         //创建订单
 
         String userUUID = getUserSession(request);
-        Orderlist resultOrder = orderService.createOrder(orderlist, userUUID);
+        Result resultOrder=orderService.createOrder(orderlist,userUUID);
+        if(resultOrder.getCode()==400){
+            return ResultGenerator.genFailResult("createOrder fail");
+        }
+        Orderlist orderList=(Orderlist)resultOrder.getData();
         if (null == resultOrder) {
             return ResultGenerator.genFailResult("failed");
         }
-        orderService.save(resultOrder);
+        orderService.save(orderList);
         //删除相应的购物车
         Wishlist findwishlist = wishlistService.findBy("owner", userUUID);
         if (null == findwishlist) {
@@ -102,7 +107,7 @@ public class OrderListController {
         }
         findwishlist.setItems(result);
         wishlistService.update(findwishlist);
-        return ResultGenerator.genSuccessResult(resultOrder.getUuid() + "," + resultOrder.getPrice());
+        return ResultGenerator.genSuccessResult(orderList.getUuid() + "," + orderList.getPrice());
     }
 
     @CrossOrigin
