@@ -77,6 +77,7 @@ public class OrderListController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
+    @CrossOrigin
     @GetMapping("/countOrder")
     public Result countOrder(){
         List<Orderlist> list=orderService.findAll();

@@ -73,6 +73,7 @@ public class UserController {
         return ResultGenerator.genSuccessResult(user);
     }
 
+    @CrossOrigin
     @GetMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
@@ -81,6 +82,7 @@ public class UserController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
+    @CrossOrigin
     @GetMapping("/countUser")
     public Result countUser(){
         List<User> list=userService.findAll();
