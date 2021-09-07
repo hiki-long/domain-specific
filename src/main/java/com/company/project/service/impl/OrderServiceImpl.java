@@ -67,7 +67,7 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
         Date time = new Date();
         Orderlist orderList = new Orderlist();
         orderList.setUuid(UUID.randomUUID().toString());
-        orderList.setItems(orderItemInfos.toString());
+        orderList.setItems(JSONObject.toJSONString(orderItemInfos));
         orderList.setBuyer(userUUID);
         orderList.setDelivery("暂无数据");
         orderList.setPrice(totalPrice);
