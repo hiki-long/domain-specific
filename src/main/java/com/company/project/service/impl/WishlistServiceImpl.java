@@ -47,21 +47,33 @@ public class WishlistServiceImpl extends AbstractService<Wishlist> implements Wi
         } else {
             JSONArray jsonArray = JSONObject.parseArray(findWishlist.getItems());
             ArrayList<Map<String, Object>> list = new ArrayList<>();
-            int changeNum =0;
             Set<String> removeNames = removeItems.keySet();
+            int removeSize = removeNames.size();
             JSONArray newJsonArray = new JSONArray();
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                 Map<String, Object> curMap = jsonObject.getInnerMap();
                 String UUID = (String)curMap.get("id");
                 if (removeNames.contains(UUID)){
-                    changeNum = removeItems.get(UUID);
+                    Integer beforeNum = (Integer) curMap.get("num");
+                    Integer changeNum = removeItems.get(UUID);
+                    if(beforeNum - changeNum < 0){
+                        throw new RuntimeException();
+                    }
+                    Integer afterNum = beforeNum - changeNum;
                     //修改数字
-                    curMap.put(UUID,changeNum);
+                    curMap.put(UUID,afterNum);
+                    if(afterNum != 0){
+                        newJsonArray.add(jsonObject);
+                    }
+                    removeSize--;
                 }
-                if(changeNum != 0) {
+                else {
                     newJsonArray.add(jsonObject);
                 }
+            }
+            if(removeSize != 0){
+                throw new RuntimeException("删除数和购物车数不匹配");
             }
             String result =newJsonArray.toJSONString();
             return result;

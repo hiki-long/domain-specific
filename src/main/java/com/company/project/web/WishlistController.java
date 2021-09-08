@@ -63,7 +63,7 @@ public class WishlistController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
     @PostMapping("/addWishlist")
-    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,HttpServletRequest request) throws Exception {
+    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number, @RequestParam(value = "is") HttpServletRequest request) throws Exception {
         String userUUID=getUserSession(request);
         if(userUUID==null){
             return ResultGenerator.genFailResult("没有找到相应的登录数据");
