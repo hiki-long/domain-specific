@@ -149,6 +149,16 @@ public class ItemController {
     }
 
     @CrossOrigin
+    @PostMapping
+    public Result changeItemState(@RequestParam String uuid){
+        Item item=itemService.findById(uuid);
+        Boolean saleState=item.getOnsale();
+        item.setOnsale(!saleState);
+        itemService.update(item);
+        return ResultGenerator.genSuccessResult("change sale state success");
+    }
+
+    @CrossOrigin
     @GetMapping("/listAll")
     public Result listAllItem(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size, HttpServletRequest request) {
         PageHelper.startPage(page, size);
