@@ -69,7 +69,7 @@ public class OrderListController {
     }
 
     @CrossOrigin
-    @GetMapping("/list")
+    @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Orderlist> list = orderService.findAll();
@@ -77,7 +77,8 @@ public class OrderListController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
 
-    @GetMapping("/countOrder")
+    @CrossOrigin
+    @PostMapping("/countOrder")
     public Result countOrder(){
         List<Orderlist> list=orderService.findAll();
         int length=list.size();

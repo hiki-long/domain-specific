@@ -91,7 +91,8 @@ public class ItemController {
         return ResultGenerator.genSuccessResult(item);
     }
 
-    @GetMapping("/list")
+    @CrossOrigin
+    @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
         List<Item> list = itemService.findAll();
@@ -99,7 +100,8 @@ public class ItemController {
         PageInfo<Item> pageInfo = new PageInfo<>(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
-    @GetMapping("/countItem")
+    @CrossOrigin
+    @PostMapping("/countItem")
     public Result countItem(){
         List<Item> list = itemService.findAll();
         int length = list.size();
