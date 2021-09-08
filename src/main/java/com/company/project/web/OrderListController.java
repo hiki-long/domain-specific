@@ -91,10 +91,7 @@ public class OrderListController {
     public Result createOrder(@RequestParam String orderlist, @RequestParam String wishlist, HttpServletRequest request) throws Exception {
         //创建订单分为两步：创建订单和删除购物车（以及尚未存在的减少库存之类的操作）
         //创建订单
-        orderlist = "[{\"itemUUID\":\"03ebf1cf-f423-4c25-bad2-88aa1a67396b\",\"number\":1,\"owner\":\"苹果\"}]";
-        wishlist = "[{\"uuid\":\"03ebf1cf-f423-4c25-bad2-88aa1a67396b\",\"number\":1}]";
-        //String userUUID = getUserSession(request);
-        String userUUID = "408b1cfb-ce0f-4f41-b773-e916378e35f5";
+        String userUUID = getUserSession(request);
         Result resultOrder=orderService.createOrder(orderlist,userUUID);
         if(resultOrder.getCode()==400){
             return ResultGenerator.genFailResult("createOrder fail");
