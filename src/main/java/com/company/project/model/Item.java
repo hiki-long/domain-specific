@@ -26,6 +26,8 @@ public class Item {
 
     private Integer version;
 
+    private Integer comments;
+
     public Integer getVersion() {
         return version;
     }
@@ -111,9 +113,16 @@ public class Item {
         return description;
     }
 
-    /**
-     * @param description
-     */
+
+
+    public Integer getComments() {
+        return comments;
+    }
+
+    public void setComments(Integer comments) {
+        this.comments = comments;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }

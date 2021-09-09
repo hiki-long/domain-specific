@@ -15,6 +15,7 @@
         <result column="image" jdbcType="VARCHAR" property="image"/>
         <result column="price" jdbcType="DOUBLE" property="price"/>
         <result column="version" jdbcType="INTEGER" property="version"></result>
+        <result column="comments" jdbcType="INTEGER" property="comments"></result>
     </resultMap>
 
 </mapper>
