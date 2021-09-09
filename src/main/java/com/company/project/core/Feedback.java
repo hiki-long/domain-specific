@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Feedback {
-    public static void feedback(String user, String item, String type) throws IOException {
+    public static void feedback(String user, String item, String type) throws IOException {//like,star
         //@Headers({"Content-Type:application/json","Accept:application/json"});
         MediaType JSON = MediaType.parse("application/json;charset=utf-8");
         JSONObject json = new JSONObject();

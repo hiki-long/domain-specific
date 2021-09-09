@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
 import com.company.project.core.Auth;
+import com.company.project.core.Feedback;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Item;
@@ -11,14 +12,17 @@ import com.company.project.model.User;
 import com.company.project.service.ItemService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import okhttp3.*;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
-
+//import org.springframework.http.MediaType;
 import javax.annotation.Resource;
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
@@ -41,6 +45,8 @@ public class ItemController {
     private ItemService itemService;
 
     private Auth auth;
+
+    private static final int recommendNum = 2;
 
     private String getUTF8(String s) {
         return new String(s.getBytes(), StandardCharsets.UTF_8);
@@ -238,7 +244,8 @@ public class ItemController {
     /*
     获取相应的图片
      */
-    @PostMapping(value = "getAvatar", produces = MediaType.IMAGE_PNG_VALUE)
+
+    @PostMapping(value = "getAvatar", produces = org.springframework.http.MediaType.IMAGE_PNG_VALUE)
     public Result getAvatar(@RequestParam String item, HttpServletRequest request) {//记得改返回值
 
         String pictureUrl = null;
@@ -261,6 +268,84 @@ public class ItemController {
         }
         return ResultGenerator.genFailResult("没有相应地址的Url");
     }
+    @GetMapping(value = "getItemRecommend")
+    public Result getItemRecommend(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
+        String userUUID = getUserSession(request);
+        if(null == userUUID){
+            return ResultGenerator.genFailResult("fail");
+        }
+        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+        JSONObject json = new JSONObject();
+        try {
+            json.put("item-id",userUUID);
+            json.put("n",recommendNum);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = RequestBody.create(String.valueOf(json),JSON);
+        String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors";
+        Request theRequest = new Request.Builder()
+                .url(theUrl)
+                .method("GET",requestBody)
+                .addHeader("Content-Type","application/json")
+                .build();
+        Response response = client.newCall(theRequest).execute();
+        if(response.code()!=200){
+            return ResultGenerator.genFailResult("fail");
+        }
+        ResponseBody responseBody = response.body();
+        String result = responseBody.toString();
+        return ResultGenerator.genSuccessResult(result);
+    }
+
+    @GetMapping(value = "getRecommend")
+    public Result getRecommend(HttpServletRequest request) throws IOException {
+
+        String userUUID = getUserSession(request);
+        String theUrl = "";
+        Request theRequest = null;
+        RequestBody requestBody = null;
+        OkHttpClient client = new OkHttpClient();
+        if(null == userUUID){
+            theUrl = "http://45.77.21.236:8087/api/popular";
+            theRequest = new Request.Builder()
+                    .url(theUrl)
+                    .method("GET",requestBody)
+                    .addHeader("Content-Type","application/json")
+                    .build();
+        }
+        else{
+            MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+            JSONObject json = new JSONObject();
+            json.put("user-id",userUUID);
+            json.put("n",recommendNum);
+            requestBody = RequestBody.create(String.valueOf(json),JSON);
+            theUrl = "http://45.77.21.236:8087/api/user/"+userUUID+"/neighbors";
+            theRequest = new Request.Builder()
+                    .url(theUrl)
+                    .method("GET",requestBody)
+                    .addHeader("Content-Type","application/json")
+                    .build();
+        }
+        Response response = client.newCall(theRequest).execute();
+        if(response.code() != 200){
+            return ResultGenerator.genFailResult("fail");
+        }
+        return ResultGenerator.genSuccessResult(response.body().toString());
+    }
+
+    @PostMapping(value = "recordLike")
+    public Result recordLike(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
+        String userUUID = getUserSession(request);
+        if(null == userUUID){
+            return ResultGenerator.genFailResult("user fail");
+        }
+        Feedback.feedback(userUUID,itemUUID,"like");
+        return ResultGenerator.genSuccessResult();
+    }
+
+
 
     private String getUserSession(javax.servlet.http.HttpServletRequest request){
         HttpSession session=null;

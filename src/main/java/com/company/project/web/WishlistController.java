@@ -3,6 +3,7 @@ package com.company.project.web;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.company.project.core.Auth;
+import com.company.project.core.Feedback;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.Wishlist;
@@ -63,10 +64,13 @@ public class WishlistController {
         return ResultGenerator.genSuccessResult(pageInfo);
     }
     @PostMapping("/addWishlist")
-    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number, @RequestParam(value = "is") HttpServletRequest request) throws Exception {
+    public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,@RequestParam(value = "isClick") Boolean isClick, @RequestParam(value = "is") HttpServletRequest request) throws Exception {
         String userUUID=getUserSession(request);
         if(userUUID==null){
             return ResultGenerator.genFailResult("没有找到相应的登录数据");
+        }
+        if(isClick){
+            Feedback.feedback(userUUID,itemUUID,"star");
         }
         Wishlist findwishlist=null;
         findwishlist=wishlistService.findBy("owner",userUUID);

@@ -2,6 +2,7 @@ package com.company.project.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.company.project.core.Feedback;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.dao.OrderListMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -78,6 +80,11 @@ public class OrderServiceImpl extends AbstractService<Orderlist> implements Orde
             Result result=itemService.reduceItem(orderItemInfo.itemUUID, orderItemInfo.number);
             if(result.getCode()==400){
                 return result;
+            }
+            try {
+                Feedback.feedback(userUUID,orderItemInfo.itemUUID,"star");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             orderItemInfos.add(orderItemInfo);
             totalPrice+=orderItemInfo.totalPrice;
