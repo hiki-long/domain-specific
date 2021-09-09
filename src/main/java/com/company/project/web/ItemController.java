@@ -299,32 +299,47 @@ public class ItemController {
         Request theRequest = null;
         RequestBody requestBody = null;
         OkHttpClient client = new OkHttpClient();
+        Response response = null;
         if(null == userUUID){
             theUrl = "http://45.77.21.236:8087/api/popular?n="+recommendNum;
             theRequest = new Request.Builder()
                     .url(theUrl)
                     .method("GET",requestBody)
                     .build();
+            response = client.newCall(theRequest).execute();
+            if(response.code() != 200){
+                return ResultGenerator.genFailResult("fail");
+            }
+            String json = response.body().string();
+            JSONArray jsonArray = JSONArray.parseArray(json);
+            List<String> list = new ArrayList<>();
+            for(int i=0;i<jsonArray.size();i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                list.add((String)jsonObject.get("Id"));
+            }
+            return ResultGenerator.genSuccessResult(list);
         }
         else{
-            theUrl = "http://45.77.21.236:8087/api/user/"+userUUID+"/neighbors?user-id="+userUUID+"&n="+recommendNum;
+            theUrl = "http://45.77.21.236:8087/api/recommend/"+userUUID+"?&n="+recommendNum;
             theRequest = new Request.Builder()
                     .url(theUrl)
                     .method("GET",requestBody)
                     .build();
+            response = client.newCall(theRequest).execute();
+            if(response.code() != 200){
+                return ResultGenerator.genFailResult("fail");
+            }
+            String json = response.body().string();
+            int length = json.length();
+            String str = json.substring(1,length-1);
+            String[] array = str.split(",");
+            List<String> result = new ArrayList<>();
+            for(int i=0;i<array.length;i++){
+                int theLength = array[i].length();
+                result.add(array[i].substring(3,theLength-1));
+            }
+            return ResultGenerator.genSuccessResult(result);
         }
-        Response response = client.newCall(theRequest).execute();
-        if(response.code() != 200){
-            return ResultGenerator.genFailResult("fail");
-        }
-        String json = response.body().string();
-        JSONArray jsonArray = JSONArray.parseArray(json);
-        List<String> list = new ArrayList<>();
-        for(int i=0;i<jsonArray.size();i++){
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            list.add((String)jsonObject.get("Id"));
-        }
-        return ResultGenerator.genSuccessResult(list);
     }
 
     @PostMapping(value = "recordLike")
