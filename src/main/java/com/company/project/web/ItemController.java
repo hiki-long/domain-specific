@@ -295,6 +295,7 @@ public class ItemController {
     @GetMapping(value = "getRecommend")
     public Result getRecommend(HttpServletRequest request) throws IOException {
         String userUUID = getUserSession(request);
+        userUUID = "408b1cfb-ce0f-4f41-b773-e916378e35f5";
         String theUrl = "";
         Request theRequest = null;
         RequestBody requestBody = null;
@@ -335,8 +336,13 @@ public class ItemController {
             String[] array = str.split(",");
             List<String> result = new ArrayList<>();
             for(int i=0;i<array.length;i++){
+                if(i!=array.length-1){
                 int theLength = array[i].length();
                 result.add(array[i].substring(3,theLength-1));
+                }
+                else {
+                    result.add(array[i].substring(3,length-2));
+                }
             }
             return ResultGenerator.genSuccessResult(result);
         }
