@@ -46,7 +46,7 @@ public class ItemController {
 
     private Auth auth;
 
-    private static final int recommendNum = 2;
+    private static final int recommendNum = 4;
 
     private String getUTF8(String s) {
         return new String(s.getBytes(), StandardCharsets.UTF_8);
@@ -270,25 +270,11 @@ public class ItemController {
     }
     @GetMapping(value = "getItemRecommend")
     public Result getItemRecommend(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
-        String userUUID = getUserSession(request);
-        if(null == userUUID){
-            return ResultGenerator.genFailResult("fail");
-        }
-        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
-        JSONObject json = new JSONObject();
-        try {
-            json.put("item-id",userUUID);
-            json.put("n",recommendNum);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = RequestBody.create(String.valueOf(json),JSON);
         String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors";
         Request theRequest = new Request.Builder()
                 .url(theUrl)
-                .method("GET",requestBody)
-                .addHeader("Content-Type","application/json")
+                .method("GET",null)
                 .build();
         Response response = client.newCall(theRequest).execute();
         if(response.code()!=200){
