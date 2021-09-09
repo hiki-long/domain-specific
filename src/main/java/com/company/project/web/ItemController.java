@@ -341,7 +341,8 @@ public class ItemController {
                 result.add(array[i].substring(3,theLength-1));
                 }
                 else {
-                    result.add(array[i].substring(3,length-2));
+                    int theLength = array[i].length();
+                    result.add(array[i].substring(3,theLength-2));
                 }
             }
             return ResultGenerator.genSuccessResult(result);
