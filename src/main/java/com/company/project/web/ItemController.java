@@ -1,6 +1,7 @@
 package com.company.project.web;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPObject;
 import com.company.project.core.Auth;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -271,7 +273,7 @@ public class ItemController {
     @GetMapping(value = "getItemRecommend")
     public Result getItemRecommend(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors";
+        String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors?item-id="+itemUUID+"&n="+recommendNum;
         Request theRequest = new Request.Builder()
                 .url(theUrl)
                 .method("GET",null)
@@ -280,45 +282,49 @@ public class ItemController {
         if(response.code()!=200){
             return ResultGenerator.genFailResult("fail");
         }
-        ResponseBody responseBody = response.body();
-        String result = responseBody.toString();
-        return ResultGenerator.genSuccessResult(result);
+        String json = response.body().string();
+        JSONArray jsonArray = JSONArray.parseArray(json);
+        List<String> list = new ArrayList<>();
+        for(int i=0;i<jsonArray.size();i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            list.add((String)jsonObject.get("Id"));
+        }
+        return ResultGenerator.genSuccessResult(list);
     }
 
     @GetMapping(value = "getRecommend")
     public Result getRecommend(HttpServletRequest request) throws IOException {
-
         String userUUID = getUserSession(request);
         String theUrl = "";
         Request theRequest = null;
         RequestBody requestBody = null;
         OkHttpClient client = new OkHttpClient();
         if(null == userUUID){
-            theUrl = "http://45.77.21.236:8087/api/popular";
+            theUrl = "http://45.77.21.236:8087/api/popular?n="+recommendNum;
             theRequest = new Request.Builder()
                     .url(theUrl)
                     .method("GET",requestBody)
-                    .addHeader("Content-Type","application/json")
                     .build();
         }
         else{
-            MediaType JSON = MediaType.parse("application/json;charset=utf-8");
-            JSONObject json = new JSONObject();
-            json.put("user-id",userUUID);
-            json.put("n",recommendNum);
-            requestBody = RequestBody.create(String.valueOf(json),JSON);
-            theUrl = "http://45.77.21.236:8087/api/user/"+userUUID+"/neighbors";
+            theUrl = "http://45.77.21.236:8087/api/user/"+userUUID+"/neighbors?user-id="+userUUID+"&n="+recommendNum;
             theRequest = new Request.Builder()
                     .url(theUrl)
                     .method("GET",requestBody)
-                    .addHeader("Content-Type","application/json")
                     .build();
         }
         Response response = client.newCall(theRequest).execute();
         if(response.code() != 200){
             return ResultGenerator.genFailResult("fail");
         }
-        return ResultGenerator.genSuccessResult(response.body().toString());
+        String json = response.body().string();
+        JSONArray jsonArray = JSONArray.parseArray(json);
+        List<String> list = new ArrayList<>();
+        for(int i=0;i<jsonArray.size();i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            list.add((String)jsonObject.get("Id"));
+        }
+        return ResultGenerator.genSuccessResult(list);
     }
 
     @PostMapping(value = "recordLike")
