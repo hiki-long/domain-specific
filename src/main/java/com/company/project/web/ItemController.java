@@ -338,9 +338,6 @@ public class ItemController {
     @PostMapping(value = "recordLike")
     public Result recordLike(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
         String userUUID = getUserSession(request);
-        if(null == userUUID){
-            return ResultGenerator.genFailResult("user fail");
-        }
         Feedback.feedback(userUUID,itemUUID,"like");
         return ResultGenerator.genSuccessResult();
     }
