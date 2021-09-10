@@ -89,7 +89,7 @@ public class OrderListController {
     @CrossOrigin
     @PostMapping("/createOrder")
     @Transactional
-    public Result createOrder(@RequestParam String orderlist, @RequestParam String wishlist, HttpServletRequest request) throws Exception {
+    public Result createOrder(@RequestParam String orderlist, @RequestParam String wishlist, HttpServletRequest request,@RequestParam(value = "isDirect") Boolean isDirect) throws Exception {
         //创建订单分为两步：创建订单和删除购物车（以及尚未存在的减少库存之类的操作）
         //创建订单
         String userUUID = getUserSession(request);
@@ -103,17 +103,19 @@ public class OrderListController {
         }
         orderService.save(orderList);
         //删除相应的购物车
-        Wishlist findwishlist = wishlistService.findBy("owner", userUUID);
-        if (null == findwishlist) {
-            return ResultGenerator.genFailResult("failed");
+        if(!isDirect) {
+            Wishlist findwishlist = wishlistService.findBy("owner", userUUID);
+            if (null == findwishlist) {
+                return ResultGenerator.genFailResult("failed");
+            }
+            //这里需要将分成两个接口的参数放在一起传递
+            String result = wishlistService.removeWishlist(wishlist, findwishlist);
+            if (null == result) {
+                return ResultGenerator.genFailResult("failed");
+            }
+            findwishlist.setItems(result);
+            wishlistService.update(findwishlist);
         }
-        //这里需要将分成两个接口的参数放在一起传递
-        String result = wishlistService.removeWishlist(wishlist, findwishlist);
-        if (null == result) {
-            return ResultGenerator.genFailResult("failed");
-        }
-        findwishlist.setItems(result);
-        wishlistService.update(findwishlist);
         return ResultGenerator.genSuccessResult(orderList.getUuid() + "," + orderList.getPrice());
     }
 
