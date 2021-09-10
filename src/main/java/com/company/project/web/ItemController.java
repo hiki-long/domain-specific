@@ -273,7 +273,7 @@ public class ItemController {
     @GetMapping(value = "getItemRecommend")
     public Result getItemRecommend(@RequestParam(value = "itemUUID") String itemUUID, HttpServletRequest request) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors?item-id="+itemUUID+"&n="+recommendNum;
+        String theUrl = "http://45.77.21.236:8087/api/item/"+itemUUID+"/neighbors?n="+recommendNum;
         Request theRequest = new Request.Builder()
                 .url(theUrl)
                 .method("GET",null)
