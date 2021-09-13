@@ -10,6 +10,8 @@ import com.company.project.model.Wishlist;
 import com.company.project.service.WishlistService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -25,6 +27,7 @@ import java.util.Map;
 /**
  * Created by CodeGenerator on 2021/04/21.
  */
+@Api(description = "购物车接口")
 @RestController
 @RequestMapping("/wishlist")
 public class WishlistController {
@@ -55,7 +58,7 @@ public class WishlistController {
         Wishlist wishlist = wishlistService.findById(id);
         return ResultGenerator.genSuccessResult(wishlist);
     }
-
+    @ApiOperation(value = "展示购物车", notes = "展示购物车")
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
@@ -63,6 +66,7 @@ public class WishlistController {
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }
+    @ApiOperation(value = "新增购物车", notes = "新增购物车")
     @PostMapping("/addWishlist")
     public Result addWishlist(@RequestParam(value = "itemUUID",required = true) String itemUUID,@RequestParam(value = "number",required = true) String number,@RequestParam(value = "isClick") Boolean isClick, @RequestParam(value = "is") HttpServletRequest request) throws Exception {
         String userUUID=getUserSession(request);
@@ -118,6 +122,7 @@ public class WishlistController {
     /*
     需要传入的参数，删除的是什么，删除的数量
      */
+    @ApiOperation(value = "移出购物车", notes = "删除购物车")
     @PostMapping("/removeWishlist")
     public Result removeWishlist(@RequestParam String wishlist, HttpServletRequest request) throws Exception {
         String userUUID=getUserSession(request);

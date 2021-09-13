@@ -9,9 +9,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 @EnableTransactionManagement
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class},scanBasePackages = "com.company.project")
 @ServletComponentScan
 public class Application extends WebMvcConfigurer {
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 请注意下面这个映射，将资源路径 /ts 下的资源，映射到根目录为 /ts的访问路径下
         // 如 ts下的ts.html, 对应的访问路径 /ts/ts
